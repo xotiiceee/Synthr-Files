@@ -1,18 +1,16 @@
 {
   "name": "synthr-monorepo",
   "version": "1.0.0",
-  "description": "Synthr - AI Design Tools Directory (Monorepo)",
+  "description": "Synthr — AI Design Tools Directory + Pulse — X marketing automation",
   "private": true,
-  "workspaces": [
-    "apps/*",
-    "packages/*"
-  ],
   "scripts": {
-    "build": "cd apps/synthr && npm run build",
-    "dev": "cd apps/synthr && npm run dev",
-    "deploy": "cd apps/synthr && npm run deploy",
-    "generate": "cd packages/marketing && npm run generate",
-    "schedule": "cd packages/marketing && npm run schedule"
-  },
-  "devDependencies": {}
+    "pulse:hosted": "pnpm --filter pulse hosted",
+    "pulse:build:ui": "pnpm --filter pulse build:ui",
+    "pulse:test": "pnpm --filter pulse test",
+    "pulse:lint": "pnpm --filter pulse lint",
+    "synthr:dev": "pnpm --filter synthr dev",
+    "synthr:build": "pnpm --filter synthr build",
+    "synthr:start": "pnpm --filter synthr start",
+    "generate": "pnpm --filter @synthr/marketing generate"
+  }
 }

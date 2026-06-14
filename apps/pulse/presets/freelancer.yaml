@@ -1,0 +1,188 @@
+# ─── Freelancer / Consultant Preset ───────────────────────────────────────────
+# Starting point for freelancers, consultants, solo service providers.
+# Customize persona fields via the setup wizard.
+
+persona:
+  niche: "freelancer"
+  idealCustomer: "freelancers and consultants earning $50K-$300K looking to grow sustainably"
+  problemSolved: "building a predictable freelance business without burnout"
+  uniqueValue: "been there, done that — practical advice from years of client work"
+  tone: "casual"
+  neverSay:
+    - "hustle harder"
+    - "passive income"
+    - "10x"
+    - "boss"
+    - "grind"
+    - "side hustle"
+    - "CEO of me"
+
+topics:
+  - id: pricing-services
+    query: "freelance pricing rates how much to charge undercharging"
+    textMustMatch: ["pricing", "rates", "charge", "hourly", "value"]
+    replies:
+      - "I doubled my rates and lost 20% of clients but made 60% more. The math always works in your favor: {{url}}"
+      - "Value-based pricing changed everything for me. Here's the script I use in discovery calls: {{url}}"
+
+  - id: finding-clients
+    query: "finding freelance clients where to get work leads"
+    textMustMatch: ["clients", "leads", "finding", "work", "projects"]
+    replies:
+      - "80% of my clients come from referrals and content. Cold outreach fills the gaps. My full system: {{url}}"
+      - "Stop applying on job boards. Build relationships in communities where your clients hang out: {{url}}"
+
+  - id: cold-outreach
+    query: "cold outreach freelancer cold email DM getting responses"
+    textMustMatch: ["cold", "outreach", "email", "DM", "response"]
+    replies:
+      - "The cold emails that work lead with something specific you noticed about their business. Template: {{url}}"
+      - "I send 10 personalized emails a week instead of 100 generic ones. Way better results: {{url}}"
+
+  - id: client-management
+    query: "managing difficult clients freelance expectations communication"
+    textMustMatch: ["client", "management", "difficult", "expectations", "communication"]
+    replies:
+      - "Weekly async updates prevent 90% of client anxiety. I send a Loom walkthrough every Friday: {{url}}"
+      - "Set expectations in writing before starting. My onboarding doc handles this upfront: {{url}}"
+
+  - id: scope-creep
+    query: "scope creep freelance project keeps growing out of scope"
+    textMustMatch: ["scope", "creep", "extra", "out of scope", "boundaries"]
+    replies:
+      - "\"Happy to add that — here's what that looks like as a change order.\" That one sentence saved me thousands: {{url}}"
+      - "A clear scope document with explicit exclusions prevents most creep before it starts: {{url}}"
+
+  - id: contracts-legal
+    query: "freelance contract template protect yourself legally"
+    textMustMatch: ["contract", "agreement", "legal", "terms", "protect"]
+    replies:
+      - "Never start work without a signed contract. Mine covers kill fees, IP ownership, and payment terms: {{url}}"
+      - "The clauses that have saved me: kill fee, milestone payments, and revision limits. Details: {{url}}"
+
+  - id: invoicing-payments
+    query: "freelance invoicing late payments clients not paying"
+    textMustMatch: ["invoice", "payment", "late", "paying", "billing"]
+    replies:
+      - "50% upfront, milestone payments, net-14 terms. I haven't chased a payment in 2 years: {{url}}"
+      - "Late payment? Pause work immediately and send a polite but firm email. My template: {{url}}"
+
+  - id: portfolio-building
+    query: "freelance portfolio how to build no clients yet showcase"
+    textMustMatch: ["portfolio", "showcase", "work", "examples", "case study"]
+    replies:
+      - "Case studies > screenshots. Show the problem, your process, and the result. Template: {{url}}"
+      - "No clients yet? Do 2-3 spec projects for real businesses (with permission). That's how I started: {{url}}"
+
+  - id: niching-down
+    query: "freelancer niching down specialize too broad generalist"
+    textMustMatch: ["niche", "specialize", "generalist", "focus", "narrow"]
+    replies:
+      - "I went from 'web developer' to 'Shopify migration specialist' and tripled my rate. Niching works: {{url}}"
+      - "You don't have to pick one niche forever. Test for 90 days, see what resonates: {{url}}"
+
+  - id: testimonials-social-proof
+    query: "getting client testimonials freelance social proof reviews"
+    textMustMatch: ["testimonials", "reviews", "social proof", "feedback", "recommend"]
+    replies:
+      - "Ask at the moment of peak satisfaction — right after delivering results. Timing is everything: {{url}}"
+      - "I send a 3-question form: what was the problem, what did we do, what was the result. Simple: {{url}}"
+
+  - id: recurring-revenue
+    query: "freelance recurring revenue retainer clients monthly income"
+    textMustMatch: ["recurring", "retainer", "monthly", "predictable", "income"]
+    replies:
+      - "I moved 60% of my revenue to retainers. Less feast-or-famine. Here's how I structure them: {{url}}"
+      - "Productized services are the bridge between freelancing and recurring revenue: {{url}}"
+
+  - id: burnout-recovery
+    query: "freelance burnout overwhelmed too much work stressed"
+    textMustMatch: ["burnout", "overwhelmed", "stressed", "tired", "balance"]
+    replies:
+      - "I burned out hard and came back with boundaries: no Slack on weekends, 4 client max, 6-hour days. Changed everything: {{url}}"
+      - "Raising rates and taking fewer clients is the best burnout prevention I've found: {{url}}"
+
+  - id: time-management
+    query: "freelance time management productivity juggling clients"
+    textMustMatch: ["time", "management", "productivity", "schedule", "juggling"]
+    replies:
+      - "I batch all client calls to Tuesday/Thursday. Mon/Wed/Fri is deep work only. Productivity doubled: {{url}}"
+      - "Time tracking showed me I was spending 40% of my week on non-billable work. The fix: {{url}}"
+
+  - id: writing-proposals
+    query: "freelance proposal template how to write win projects"
+    textMustMatch: ["proposal", "pitch", "win", "project", "bidding"]
+    replies:
+      - "My proposals are 1 page max: problem summary, approach, timeline, price. No fluff: {{url}}"
+      - "Stop writing proposals before you have a discovery call. Qualify first, propose second: {{url}}"
+
+  - id: passive-income-products
+    query: "freelancer creating products templates courses diversify income"
+    textMustMatch: ["products", "templates", "course", "diversify", "passive"]
+    replies:
+      - "I turned my most-repeated client deliverable into a template pack. Makes $2K/month on autopilot: {{url}}"
+      - "Start with a small digital product, not a course. Test demand before building something huge: {{url}}"
+
+contentThemes:
+  - "Why I stopped charging hourly (and what I do instead)"
+  - "The client red flags I wish I'd recognized earlier"
+  - "How I went from $50/hr to $200/hr in 18 months"
+  - "The proposal template with an 80% close rate"
+  - "Why your portfolio isn't getting you clients"
+  - "Scope creep: the one sentence that stops it"
+  - "How to fire a client professionally"
+  - "The freelancer's guide to never chasing payments again"
+  - "Niching down doesn't mean turning away work"
+  - "My weekly routine for consistent lead generation"
+  - "How to build recurring revenue as a freelancer"
+  - "The discovery call framework I use for every prospect"
+  - "Freelance burnout is a pricing problem"
+  - "Why I send weekly updates (and what's in them)"
+  - "From freelancer to consultant: the mindset shift"
+  - "The contract clause that saved me $15K"
+  - "How to ask for testimonials without being awkward"
+  - "Time tracking changed how I price everything"
+  - "The cold email that landed my biggest client"
+  - "Building a freelance business that survives a slow month"
+
+competitors:
+  - "Upwork"
+  - "Fiverr"
+  - "Toptal"
+  - "99designs"
+  - "Contra"
+  - "Freelancer.com"
+  - "Malt"
+
+platforms:
+  x:
+    enabled: true
+    maxPerDay: 8
+    maxPerRun: 3
+  reddit:
+    enabled: true
+    maxPerDay: 6
+    maxPerRun: 2
+    subreddits:
+      - "r/freelance"
+      - "r/Entrepreneur"
+      - "r/consulting"
+      - "r/digitalnomad"
+      - "r/WorkOnline"
+  hackernews:
+    enabled: false
+    maxPerDay: 0
+    maxPerRun: 0
+  linkedin:
+    enabled: true
+    maxPerDay: 5
+    maxPerRun: 2
+  discord:
+    enabled: false
+    maxPerDay: 0
+    maxPerRun: 0
+    discordServers: []
+  producthunt:
+    enabled: false
+    maxPerDay: 0
+    maxPerRun: 0

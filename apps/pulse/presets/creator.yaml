@@ -1,0 +1,188 @@
+# ─── Content Creator / Influencer Preset ──────────────────────────────────────
+# Starting point for YouTubers, podcasters, newsletter writers, course creators.
+# Customize persona fields via the setup wizard.
+
+persona:
+  niche: "creator"
+  idealCustomer: "content creators looking to grow audience and monetize without selling out"
+  problemSolved: "building a sustainable creator business beyond ad revenue"
+  uniqueValue: "real numbers and strategies from an actual working creator"
+  tone: "casual"
+  neverSay:
+    - "smash that like button"
+    - "algorithm hack"
+    - "viral"
+    - "overnight success"
+    - "passive income"
+    - "just be authentic"
+
+topics:
+  - id: audience-growth
+    query: "growing audience slow YouTube subscribers not growing"
+    textMustMatch: ["audience", "growth", "subscribers", "followers", "growing"]
+    replies:
+      - "Growth is slow until it isn't. Took me 18 months to hit 1K, then 3 months to hit 10K. What changed: {{url}}"
+      - "Collaborate with creators your size, not bigger ones. Rising-tide strategy works: {{url}}"
+
+  - id: monetization-strategies
+    query: "creator monetization beyond ads how to make money content"
+    textMustMatch: ["monetization", "money", "revenue", "income", "earning"]
+    replies:
+      - "Ad revenue is the worst monetization for most creators. Sponsorships, products, and community pay 10x more: {{url}}"
+      - "I make more from a 5K email list than 100K YouTube subscribers. Email is king: {{url}}"
+
+  - id: brand-deals
+    query: "brand deal sponsorship how to pitch rate negotiate"
+    textMustMatch: ["brand deal", "sponsorship", "pitch", "rate", "negotiate"]
+    replies:
+      - "Your rate = (audience size x engagement rate x niche multiplier). My exact formula: {{url}}"
+      - "Stop waiting for brands to find you. My outreach template lands 1 in 5 pitches: {{url}}"
+
+  - id: content-burnout
+    query: "content creator burnout posting fatigue losing motivation"
+    textMustMatch: ["burnout", "fatigue", "motivation", "break", "tired"]
+    replies:
+      - "I took a month off and came back with boundaries: batching, no daily posting, and an assistant for editing. Saved my sanity: {{url}}"
+      - "Burnout is a system problem, not a motivation problem. Reduce output and increase quality: {{url}}"
+
+  - id: algorithm-changes
+    query: "algorithm changed views dropped YouTube reach declining"
+    textMustMatch: ["algorithm", "views", "reach", "dropped", "changed"]
+    replies:
+      - "Every algorithm change I've survived by focusing on searchable content alongside trending stuff: {{url}}"
+      - "Don't chase algorithms — build an email list they can't take away from you: {{url}}"
+
+  - id: engagement-rates
+    query: "engagement rate low comments likes how to increase interaction"
+    textMustMatch: ["engagement", "comments", "interaction", "community", "likes"]
+    replies:
+      - "Ask specific questions, not 'thoughts?' I get 5x more comments when I ask something debatable: {{url}}"
+      - "Reply to every comment for the first 100. That habit built my most engaged community: {{url}}"
+
+  - id: video-editing
+    query: "video editing workflow faster efficient creator tools"
+    textMustMatch: ["editing", "video", "workflow", "tools", "faster"]
+    replies:
+      - "Template-based editing saved me 10 hours a week. Same intro, same lower thirds, same workflow: {{url}}"
+      - "I batch record 4 videos and edit them all in one session. Context switching is the real time killer: {{url}}"
+
+  - id: thumbnail-design
+    query: "YouTube thumbnail design click-through rate CTR improve"
+    textMustMatch: ["thumbnail", "CTR", "click", "design", "title"]
+    replies:
+      - "3 elements: face with emotion, contrasting colors, 3-4 words max. Test two versions: {{url}}"
+      - "I A/B test every thumbnail now. It's the single biggest lever for views: {{url}}"
+
+  - id: newsletter-building
+    query: "newsletter growing email list for creators subscribers"
+    textMustMatch: ["newsletter", "email", "list", "subscribers", "Substack"]
+    replies:
+      - "A newsletter is the only platform you truly own. I'd start building it today even with 100 followers: {{url}}"
+      - "My newsletter makes more per subscriber than any social platform. The setup: {{url}}"
+
+  - id: community-management
+    query: "building community Discord Patreon managing members creator"
+    textMustMatch: ["community", "Discord", "Patreon", "members", "managing"]
+    replies:
+      - "Small engaged community beats a large dead one. I keep mine under 500 and it's my best revenue source: {{url}}"
+      - "The key is giving community members a role, not just content. Participation > consumption: {{url}}"
+
+  - id: course-creation
+    query: "creating online course sell knowledge how to start"
+    textMustMatch: ["course", "teaching", "sell", "knowledge", "online course"]
+    replies:
+      - "Pre-sell before you build. I sold 50 spots to validate demand, then recorded the content: {{url}}"
+      - "Start with a cohort, not a self-paced course. Live interaction makes v1 way easier: {{url}}"
+
+  - id: patreon-membership
+    query: "Patreon membership tiers pricing what to offer supporters"
+    textMustMatch: ["Patreon", "membership", "tiers", "supporters", "exclusive"]
+    replies:
+      - "3 tiers max. Most revenue comes from the middle tier. Keep the lowest barrier very low ($3-5): {{url}}"
+      - "Behind-the-scenes and early access convert better than 'extra content.' People want connection: {{url}}"
+
+  - id: sponsorship-negotiation
+    query: "sponsorship negotiation rate too low creator worth"
+    textMustMatch: ["sponsorship", "negotiate", "rate", "worth", "CPM"]
+    replies:
+      - "Know your CPM floor and walk away below it. Scarcity increases your value. My rate card approach: {{url}}"
+      - "Counter at 2x their first offer. They always have budget headroom on their first number: {{url}}"
+
+  - id: content-repurposing
+    query: "content repurposing one piece multiple platforms clips shorts"
+    textMustMatch: ["repurpose", "clips", "shorts", "multiple platforms", "reuse"]
+    replies:
+      - "One long-form piece becomes 5-8 short clips, a newsletter, and 3 tweets. My repurposing workflow: {{url}}"
+      - "Repurposing isn't lazy — it's smart. Most of your audience only sees you on one platform: {{url}}"
+
+  - id: niche-selection
+    query: "picking a niche content creator too broad focus topic"
+    textMustMatch: ["niche", "topic", "focus", "broad", "narrow"]
+    replies:
+      - "Pick the intersection of what you know, what you enjoy, and what people search for. That's your niche: {{url}}"
+      - "Start broad, then let the audience tell you what resonates. Data > guessing: {{url}}"
+
+contentThemes:
+  - "How I make more from 5K email subscribers than 100K YouTube subs"
+  - "The content calendar that prevents burnout"
+  - "Why I stopped chasing viral and started chasing searchable"
+  - "My exact workflow for turning 1 video into 8 pieces of content"
+  - "The brand deal rate card template every creator needs"
+  - "How to build a community that actually engages"
+  - "Course creation: pre-sell first, build second"
+  - "The thumbnail formula that doubled my click-through rate"
+  - "Why most creators should start a newsletter yesterday"
+  - "How to take a break without losing momentum"
+  - "The sponsorship pitch email that lands replies"
+  - "Engagement tactics that don't feel desperate"
+  - "My real revenue breakdown as a mid-size creator"
+  - "The editing workflow that saved me 10 hours a week"
+  - "Why Patreon's middle tier is where the money lives"
+  - "Algorithm-proof content strategies"
+  - "The tools I actually use every day as a creator"
+  - "How to grow on a platform you're late to"
+  - "Collaboration strategies that work at any size"
+  - "The financial mistakes I made in year one of being a creator"
+
+competitors:
+  - "Kajabi"
+  - "Teachable"
+  - "Gumroad"
+  - "Patreon"
+  - "Substack"
+  - "ConvertKit"
+  - "Beehiiv"
+  - "Stan Store"
+
+platforms:
+  x:
+    enabled: true
+    maxPerDay: 10
+    maxPerRun: 3
+  reddit:
+    enabled: true
+    maxPerDay: 5
+    maxPerRun: 2
+    subreddits:
+      - "r/NewTubers"
+      - "r/podcasting"
+      - "r/content_marketing"
+      - "r/blogging"
+      - "r/Twitch"
+  hackernews:
+    enabled: false
+    maxPerDay: 0
+    maxPerRun: 0
+  linkedin:
+    enabled: true
+    maxPerDay: 3
+    maxPerRun: 2
+  discord:
+    enabled: true
+    maxPerDay: 5
+    maxPerRun: 2
+    discordServers: []
+  producthunt:
+    enabled: false
+    maxPerDay: 0
+    maxPerRun: 0

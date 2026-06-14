@@ -1,0 +1,188 @@
+# ─── Marketing / Dev Agency Preset ────────────────────────────────────────────
+# Starting point for marketing agencies, dev shops, design studios.
+# Customize persona fields via the setup wizard.
+
+persona:
+  niche: "agency"
+  idealCustomer: "agency founders doing $500K-$5M looking to systemize and grow"
+  problemSolved: "building an agency that runs without you working 80-hour weeks"
+  uniqueValue: "been through the agency grind — sharing what actually scales"
+  tone: "professional"
+  neverSay:
+    - "full-service"
+    - "360 solution"
+    - "one-stop shop"
+    - "synergy"
+    - "move the needle"
+    - "circle back"
+    - "low-hanging fruit"
+
+topics:
+  - id: client-acquisition
+    query: "agency client acquisition how to get new clients leads"
+    textMustMatch: ["clients", "acquisition", "leads", "new business", "pipeline"]
+    replies:
+      - "Referrals and content drive 80% of our pipeline. Cold outreach fills the 20%. Our system: {{url}}"
+      - "We stopped pitching and started publishing case studies. Inbound tripled in 6 months: {{url}}"
+
+  - id: project-management
+    query: "agency project management workflow tools staying organized"
+    textMustMatch: ["project management", "workflow", "organized", "tracking", "deadline"]
+    replies:
+      - "We tried every PM tool. What actually matters is a consistent process, not the tool. Our framework: {{url}}"
+      - "Weekly client standups + internal Monday planning. Simple but it keeps everything on track: {{url}}"
+
+  - id: team-scaling
+    query: "agency hiring scaling team when to hire first employee"
+    textMustMatch: ["hiring", "team", "scaling", "employee", "contractor"]
+    replies:
+      - "Hire contractors first, convert the best ones to full-time. Way less risk: {{url}}"
+      - "We hired too early and almost went under. Now we follow the '3-month rule' before any hire: {{url}}"
+
+  - id: pricing-models-agency
+    query: "agency pricing model value based retainer hourly project"
+    textMustMatch: ["pricing", "retainer", "hourly", "value-based", "project"]
+    replies:
+      - "We moved from hourly to value-based and our average deal size went 3x. The transition: {{url}}"
+      - "Monthly retainers with a clear scope = predictable revenue. Here's how we structure them: {{url}}"
+
+  - id: client-retention-agency
+    query: "agency client retention churn losing clients switching"
+    textMustMatch: ["retention", "churn", "losing", "client", "keeping"]
+    replies:
+      - "We reduced churn 50% by adding monthly business reviews. Not reporting — advising: {{url}}"
+      - "Clients leave when they feel uninformed. Proactive communication fixes most retention issues: {{url}}"
+
+  - id: white-label-services
+    query: "white label agency services outsourcing subcontractors"
+    textMustMatch: ["white label", "outsource", "subcontract", "partner", "resell"]
+    replies:
+      - "We white-label dev work and keep strategy in-house. Best of both worlds: {{url}}"
+      - "Finding reliable white-label partners took trial and error. Our vetting process: {{url}}"
+
+  - id: proposals-pitching
+    query: "agency proposal template pitching new clients winning"
+    textMustMatch: ["proposal", "pitch", "winning", "RFP", "template"]
+    replies:
+      - "Our proposals are max 5 pages: problem, strategy, timeline, team, price. No 40-page decks: {{url}}"
+      - "We win by being specific about their business, not generic about our capabilities: {{url}}"
+
+  - id: case-studies
+    query: "agency case study portfolio how to write results showcase"
+    textMustMatch: ["case study", "portfolio", "results", "showcase", "proof"]
+    replies:
+      - "Problem, approach, result, testimonial. That's the format. Every case study, every time: {{url}}"
+      - "Video case studies convert 3x better than written ones for us. Quick to make too: {{url}}"
+
+  - id: agency-operations
+    query: "agency operations streamlining processes efficiency SOPs"
+    textMustMatch: ["operations", "processes", "SOPs", "efficiency", "systems"]
+    replies:
+      - "We documented our top 20 workflows as SOPs. Onboarding new hires went from 4 weeks to 1: {{url}}"
+      - "If only you can do it, your agency can't scale. SOPs are the unlock: {{url}}"
+
+  - id: sop-documentation
+    query: "creating SOPs agency standard operating procedures documentation"
+    textMustMatch: ["SOP", "documentation", "procedures", "template", "process"]
+    replies:
+      - "Loom recording + bullet point summary = SOP done in 15 minutes. Don't overthink it: {{url}}"
+      - "Start with the things you explain the most. Those are your first 5 SOPs: {{url}}"
+
+  - id: outsourcing-offshore
+    query: "agency outsourcing offshore team remote developers designers"
+    textMustMatch: ["outsourcing", "offshore", "remote", "overseas", "developers"]
+    replies:
+      - "Offshore works when you own the QA process. Without it, you'll spend more fixing issues: {{url}}"
+      - "We have a hybrid team: strategy onshore, execution offshore. The setup that makes it work: {{url}}"
+
+  - id: niche-agency
+    query: "niche agency specialize vertical industry focused"
+    textMustMatch: ["niche", "specialize", "vertical", "industry", "focused"]
+    replies:
+      - "We went from 'marketing agency' to 'marketing for SaaS companies' and doubled revenue in a year: {{url}}"
+      - "Niching feels scary but it's the fastest path to premium pricing: {{url}}"
+
+  - id: retainer-pricing
+    query: "retainer pricing agency monthly fee structuring packages"
+    textMustMatch: ["retainer", "monthly", "packages", "fee", "recurring"]
+    replies:
+      - "3 tiers: starter (one channel), growth (multi-channel), scale (full strategy). Simple to sell: {{url}}"
+      - "We price retainers based on outcomes, not hours. Clients care about results, not your timesheet: {{url}}"
+
+  - id: agency-tools
+    query: "agency tools software stack project management reporting"
+    textMustMatch: ["tools", "software", "stack", "tech", "apps"]
+    replies:
+      - "Our entire agency runs on 5 tools. More tools = more complexity, not more productivity: {{url}}"
+      - "The best agency tool is the one your team actually uses consistently: {{url}}"
+
+  - id: client-reporting
+    query: "client reporting agency dashboards metrics what to show"
+    textMustMatch: ["reporting", "dashboard", "metrics", "KPIs", "results"]
+    replies:
+      - "Report on outcomes, not activities. Clients don't care about posts published — they care about leads: {{url}}"
+      - "We send a 1-page summary with 3 key metrics + next month's plan. Executives love brevity: {{url}}"
+
+contentThemes:
+  - "The agency pricing model that changed everything for us"
+  - "Why we stopped being a full-service agency"
+  - "How to write case studies that actually close deals"
+  - "The SOPs that let us onboard clients in 48 hours"
+  - "Agency burnout is a systems problem"
+  - "Why your agency's best marketing is its own results"
+  - "The proposal format with an 80% close rate"
+  - "How we scaled from 2 to 15 people without chaos"
+  - "Client reporting that builds trust (not just reports)"
+  - "The retainer structure that reduced our churn 50%"
+  - "When to fire a client (yes, really)"
+  - "Outsourcing done right: our hybrid team model"
+  - "The 5 tools that run our entire agency"
+  - "How niching down tripled our average deal size"
+  - "Monthly business reviews: the retention secret weapon"
+  - "Why we stopped responding to RFPs"
+  - "The hiring mistake every growing agency makes"
+  - "How to build an agency that runs without you"
+  - "White-label partnerships: finding the right ones"
+  - "The client onboarding process that sets up success"
+
+competitors:
+  - "HubSpot"
+  - "Semrush"
+  - "Ahrefs"
+  - "Monday.com"
+  - "ClickUp"
+  - "Notion"
+  - "Asana"
+
+platforms:
+  x:
+    enabled: true
+    maxPerDay: 8
+    maxPerRun: 3
+  reddit:
+    enabled: true
+    maxPerDay: 5
+    maxPerRun: 2
+    subreddits:
+      - "r/marketing"
+      - "r/Entrepreneur"
+      - "r/webdev"
+      - "r/digital_marketing"
+      - "r/agency"
+  hackernews:
+    enabled: false
+    maxPerDay: 0
+    maxPerRun: 0
+  linkedin:
+    enabled: true
+    maxPerDay: 5
+    maxPerRun: 2
+  discord:
+    enabled: false
+    maxPerDay: 0
+    maxPerRun: 0
+    discordServers: []
+  producthunt:
+    enabled: false
+    maxPerDay: 0
+    maxPerRun: 0

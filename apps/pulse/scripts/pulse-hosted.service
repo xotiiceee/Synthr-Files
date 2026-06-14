@@ -1,0 +1,40 @@
+[Unit]
+Description=Pulse Hosted Server
+After=network.target
+
+[Service]
+Type=simple
+User=deploy
+WorkingDirectory=/home/deploy/pulse
+ExecStart=/usr/bin/npx tsx hosted/server.ts
+Restart=always
+RestartSec=5
+# Allow 10 restarts in 5 minutes before systemd gives up
+StartLimitIntervalSec=300
+StartLimitBurst=10
+Environment=NODE_ENV=production
+EnvironmentFile=/etc/pulse/pulse.env
+
+# Logging — journalctl -u pulse-hosted -f
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=pulse-hosted
+
+# Resource limits
+LimitNOFILE=65536
+MemoryMax=1G
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectControlGroups=true
+ProtectKernelModules=true
+ProtectKernelTunables=true
+RestrictSUIDSGID=true
+RestrictRealtime=true
+SystemCallArchitectures=native
+CapabilityBoundingSet=
+AmbientCapabilities=
+
+[Install]
+WantedBy=multi-user.target

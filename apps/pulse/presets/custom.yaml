@@ -1,0 +1,97 @@
+# ─── Custom Preset Template ───────────────────────────────────────────────────
+# Blank template for any niche. Fill in each section or use the setup wizard.
+# Copy this file and customize it for your specific business.
+
+# ─── Persona ──────────────────────────────────────────────────────────────────
+# Defines your brand voice and positioning.
+# The wizard will fill in name, brandName, website, tagline, etc.
+persona:
+  # What industry/vertical are you in?
+  niche: ""
+  # Who is your ideal customer? Be specific about their situation.
+  idealCustomer: ""
+  # What core problem do you solve for them?
+  problemSolved: ""
+  # What makes you different from alternatives?
+  uniqueValue: ""
+  # Voice tone: professional | casual | witty | technical | friendly | authoritative
+  tone: "casual"
+  # Words/phrases your brand should never use. Keeps the voice authentic.
+  neverSay: []
+
+# ─── Search Topics ────────────────────────────────────────────────────────────
+# Each topic defines what the outreach engine looks for and how to reply.
+#
+# Fields:
+#   id            — unique slug (e.g., "pricing-problems")
+#   query         — search query optimized for finding relevant conversations
+#   textMustMatch — 3-7 keywords; post must contain these to qualify as relevant
+#   replies       — 2-3 reply templates; use {{url}} where your link goes
+#   platform      — (optional) restrict to a specific platform
+#
+# Tips:
+#   - Write queries like a real person searching, not keyword spam
+#   - textMustMatch filters out false positives — be specific
+#   - Replies should sound like a person, not a brand account
+#   - Include personal experience or specific numbers when possible
+#   - 15 topics recommended for good coverage
+#
+# Example:
+#   - id: pricing-problems
+#     query: "how to price my service too cheap undercharging"
+#     textMustMatch: ["pricing", "charge", "rate", "undercharging"]
+#     replies:
+#       - "I had the same problem. Raised rates 50% and kept 90% of clients: {{url}}"
+#       - "Value-based pricing changed my business. Here's the framework I use: {{url}}"
+topics: []
+
+# ─── Content Themes ───────────────────────────────────────────────────────────
+# 20 themes for original posts (tweets, threads, LinkedIn posts).
+# Each should be a complete content idea, not just a keyword.
+#
+# Good: "The hidden cost of ignoring customer feedback"
+# Bad:  "customer feedback"
+#
+# Mix educational, opinionated, and personal experience themes.
+contentThemes: []
+
+# ─── Competitors ──────────────────────────────────────────────────────────────
+# 5-10 tools, companies, or individuals in your space.
+# Used for competitive monitoring and positioning.
+competitors: []
+
+# ─── Platform Settings ────────────────────────────────────────────────────────
+# Enable/disable platforms and set daily limits.
+#
+# maxPerDay  — total replies per day on this platform
+# maxPerRun  — max replies per single outreach run
+# subreddits — which subreddits to monitor (Reddit only)
+# discordServers — server names/keywords to search (Discord only)
+# hnCategories   — HN sections to monitor (Hacker News only)
+platforms:
+  x:
+    enabled: true
+    maxPerDay: 8
+    maxPerRun: 3
+  reddit:
+    enabled: false
+    maxPerDay: 5
+    maxPerRun: 2
+    subreddits: []
+  hackernews:
+    enabled: false
+    maxPerDay: 3
+    maxPerRun: 1
+  linkedin:
+    enabled: false
+    maxPerDay: 3
+    maxPerRun: 2
+  discord:
+    enabled: false
+    maxPerDay: 5
+    maxPerRun: 2
+    discordServers: []
+  producthunt:
+    enabled: false
+    maxPerDay: 2
+    maxPerRun: 1

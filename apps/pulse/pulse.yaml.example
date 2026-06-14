@@ -1,0 +1,395 @@
+# ═══════════════════════════════════════════════════════════════
+# PULSE AI Marketing Agent — Configuration Template
+#
+# Copy this file to pulse.yaml and customize for your product.
+# Run: cp pulse.yaml.example pulse.yaml && npm run setup
+#
+# MUST CUSTOMIZE:
+#   - persona.* — your product name, website, ideal customer
+#   - topics — 5-7 topics matching your niche
+#   - At least 1 platform enabled
+#
+# RECOMMENDED TO CUSTOMIZE:
+#   - humanBehavior.voice — your brand's writing style
+#   - competitors — 3-5 real competitors
+#   - contentThemes — topics you want to post about
+#
+# SAFE TO LEAVE AS DEFAULT:
+#   - humanBehavior.timing, antiDetection — tuned for natural behavior
+#   - autopost.safety — conservative defaults prevent issues
+#   - adaptation — learns automatically from your feedback
+#
+# SEE ALSO:
+#   docs/CUSTOMIZATION_GUIDE.md — examples for fitness, ecommerce, B2B
+#   playbooks/ — platform-specific guides (X, Reddit, HN, etc.)
+#
+# Example below uses "TaskForge" — a fictional project management SaaS
+# ═══════════════════════════════════════════════════════════════
+
+# ── Persona & Product ────────────────────────────────────────
+persona:
+  name: "TaskForge"
+  brandName: "TaskForge"
+  website: "https://taskforge.dev"
+  tagline: "Project management that thinks like an engineer"
+  niche: "engineering project management"
+  idealCustomer: "Engineering teams tired of manual status updates"
+  problemSolved: "Eliminates manual project tracking by auto-syncing from git activity"
+  uniqueValue: "Integrates with GitHub, GitLab, and Jira — tracks progress from commits and PRs automatically"
+  tone: "witty"
+  neverSay:
+    - "game-changing"
+    - "revolutionary"
+    - "synergy"
+  # X/Twitter handle — used for mention detection and auto-interaction
+  xHandle: "@taskforge_dev"
+
+# Competitors — PULSE will never badmouth them, but will
+# differentiate when relevant
+competitors:
+  - "Linear"
+  - "Jira"
+  - "Asana"
+
+# ── Human-Like Behavior ──────────────────────────────────────
+# These settings make PULSE indistinguishable from a real person.
+# Auto-calibrated from your past posts, or set manually here.
+humanBehavior:
+
+  # Voice fingerprint — keeps every post sounding like the same person
+  voice:
+    # Phrases you naturally reuse (~20% of posts, never forced)
+    catchphrases:
+      - "the real question is"
+      - "the boring answer is usually the right one"
+      - "not gonna lie"
+    emojiFrequency: "rare"          # none | rare | moderate | heavy
+    favoriteEmojis: []               # Specific emojis to gravitate toward
+    capStyle: "mostly-lowercase"     # normal | mostly-lowercase | mixed-emphasis
+    punctuationQuirks:
+      - "em-dashes between thoughts"
+      - "trailing ellipsis when thinking out loud"
+    # Strong opinions the agent holds (referenced when relevant)
+    strongOpinions:
+      - "manual status updates are a waste of time"
+      - "the best project management is invisible"
+      - "most PM tools are built for managers, not engineers"
+    humorStyle: "dry"                # dry | self-deprecating | none | observational | absurdist
+    sentenceStyle: "short-punchy"    # short-punchy | flowing-complex | mixed
+    casualtyLevel: 0.6               # 0.0 = polished, 1.0 = very casual
+
+  # Timing — makes posting cadence indistinguishable from a real human
+  timing:
+    timezone: "America/New_York"     # Your persona's timezone
+    activeWindows:                   # When you're "awake" (local time)
+      - start: "09:00"
+        end: "12:00"
+      - start: "13:00"
+        end: "15:00"
+      - start: "19:00"
+        end: "22:00"
+    basePostsPerDay: 4               # Actual varies +/- 40% daily
+    silentDayChance: 0.08            # 8% chance of posting nothing
+    burstChance: 0.15                # 15% chance of 2-3 rapid posts
+
+  # Anti-detection — patterns to vary
+  antiDetection:
+    enabled: true
+    maxConsecutiveSameFormat: 2       # Never post same format 3x in a row
+    minPostGapMinutes: 25            # Minimum minutes between posts
+    maxPostGapMinutes: 90            # Maximum minutes between posts (in active window)
+    dropTrailingPeriod: 0.15         # 15% chance to drop final period (casual)
+    casualContractions: 0.20         # 20% chance to swap formal->casual
+
+  # Engagement loop — reply to replies on your own posts
+  engagement:
+    enabled: true
+    replyToQuestionsAlways: true     # Always reply when someone asks a question
+    replyToSubstantive: 0.50         # Reply to 50% of substantive replies
+    likeRate: 0.70                   # Like 70% of replies to your posts
+    maxRepliesPerPost: 5             # Cap engagement per post
+    monitorHours: 36                 # How long to watch each post (24-48)
+
+  # Mention auto-interaction
+  mentions:
+    enabled: true
+    checkInterval: 1800              # Seconds between mention scans (30 min)
+    replyToQuestions: true            # Always reply to questions about you
+    replyToPositive: 0.60            # Reply to 60% of positive mentions
+    replyToNeutral: 0.30             # Reply to 30% of neutral mentions
+    replyToNegative: true            # Always address negative mentions
+
+# ── Auto-Posting ─────────────────────────────────────────────
+# Configure automatic content posting on your brand profile.
+autopost:
+  enabled: true
+
+  # Approval mode — how much human oversight
+  # review_all: approve every post before publishing (safest, default)
+  # review_risky: auto-post safe content, queue risky for review
+  # auto_all: fully autonomous posting (use with caution)
+  approvalMode: "review_all"
+
+  # Content categories — what types of content to generate
+  # Weight determines frequency (percentages, must sum to ~100)
+  categories:
+    news_commentary:
+      enabled: true
+      weight: 30
+      minRelevanceScore: 0.7        # 0-1, how related to your niche
+    product_tips:
+      enabled: true
+      weight: 20
+      rotate: true                   # Don't repeat same tip within 30 days
+    industry_insights:
+      enabled: true
+      weight: 20
+      depth: "medium"                # shallow | medium | deep (thread)
+    engagement:
+      enabled: true
+      weight: 15
+      types:
+        polls: true
+        questions: true
+        hot_takes: true
+      maxSpiceLevel: 7              # 1-10, how controversial hot takes can be
+    curated_reshares:
+      enabled: true
+      weight: 10
+      commentaryRequired: true       # Never naked RT — always add your take
+    milestones:
+      enabled: true
+      weight: 5
+
+  # Safety
+  safety:
+    bannedTopics:
+      - "politics"
+      - "religion"
+      - "unverified financial advice"
+    bannedWords: []
+    maxThreadLength: 8
+    requireFactCheck: true
+    duplicateDetectionDays: 30
+    coolDownOnNegative:
+      enabled: true
+      thresholdRatio: 3              # 3x more negative replies than likes
+      pauseHours: 12
+
+  # Learning
+  learning:
+    trackEngagement: true
+    adaptWeights: true               # Shift category weights toward what works
+    adaptTiming: true                # Shift posting times to best windows
+    weeklyReport: true
+
+# ── Topics ───────────────────────────────────────────────────
+# What conversations should PULSE look for?
+# Each topic has keywords (for search) and context (for relevance scoring)
+topics:
+  - name: "engineering-productivity"
+    keywords:
+      - "engineering productivity"
+      - "developer velocity"
+      - "dev team efficiency"
+      - "shipping faster"
+    context: "Conversations about improving how engineering teams work and deliver"
+    weight: 1.0   # Default weight, adaptation engine adjusts over time
+
+  - name: "standup-problems"
+    keywords:
+      - "standup meetings waste"
+      - "async standups"
+      - "status updates tedious"
+      - "daily standup alternative"
+    context: "People frustrated with daily standup meetings or manual status updates"
+    weight: 1.2   # Higher weight — this is our core pain point
+
+  - name: "project-management-tools"
+    keywords:
+      - "best project management tool"
+      - "project management for developers"
+      - "looking for PM tool"
+      - "Jira alternative"
+      - "Linear alternative"
+    context: "People actively evaluating or switching project management tools"
+    weight: 1.5   # Highest weight — direct purchase intent
+
+  - name: "github-workflow"
+    keywords:
+      - "GitHub project management"
+      - "track progress from PRs"
+      - "GitHub issues workflow"
+      - "git commit tracking"
+    context: "Discussions about using GitHub for project tracking and workflow"
+    weight: 0.8
+
+  - name: "remote-engineering"
+    keywords:
+      - "remote engineering team"
+      - "async engineering culture"
+      - "distributed dev team"
+    context: "Conversations about remote engineering team coordination"
+    weight: 0.6   # Adjacent topic — lower weight
+
+# ── Platforms ────────────────────────────────────────────────
+platforms:
+
+  x:
+    enabled: true
+    dailyLimit: 25             # Max replies per day
+    maxPerHour: 8              # Stay under spam detection
+    relevanceThreshold: 65     # 0-100, higher = more selective
+    activeHours:               # UTC times
+      - start: "12:00"         # 8 AM EST
+        end: "15:00"
+      - start: "17:00"         # 1 PM EST
+        end: "19:00"
+      - start: "21:00"         # 5 PM EST
+        end: "24:00"
+    maxReplyLength: 260        # Leave room for handles
+    # Skip conversations from these accounts
+    skipAccounts:
+      - "obvious_bot_123"
+      - "crypto_shill_99"
+
+  reddit:
+    enabled: true
+    dailyLimit: 8              # Start conservative on Reddit
+    promotionRatio: 0.1        # 1 promotional comment per 10 helpful ones
+    relevanceThreshold: 70     # Higher bar — Reddit punishes low relevance
+    subreddits:
+      - "ExperiencedDevs"
+      - "SaaS"
+      - "startups"
+      - "devops"
+      - "programming"
+    # Subreddits to never post in (even if relevant)
+    excludeSubreddits:
+      - "AskReddit"
+      - "technology"
+    minAccountAge: 14          # Days before posting (Reddit filters new accounts)
+
+  discord:
+    enabled: false             # Enable after getting bot approved in servers
+    replyDelay: 120            # Seconds to wait before replying (avoid looking automated)
+    dailyLimitPerServer: 5     # Per server, not total
+    servers: []                # Add servers after bot setup — see playbooks/06-discord.md
+
+  hackernews:
+    enabled: true
+    monitorOnly: true          # HN is read-only — no API for posting
+    checkInterval: 300         # Seconds between checks
+    minScore: 5                # Only alert on posts with 5+ points
+    alertMethod: "console"     # "console" | "webhook"
+
+  producthunt:
+    enabled: true
+    monitorOnly: true          # Manual posting only
+    categories:
+      - "productivity"
+      - "developer-tools"
+    alertOnLaunch: true
+
+  linkedin:
+    enabled: true
+    monitorOnly: true          # Generates drafts, you post manually
+    postsPerWeek: 4
+    contentMix:                # Override global content mix for LinkedIn
+      educational: 0.35
+      personal: 0.30
+      engagement: 0.20
+      promotional: 0.15
+
+# ── LLM Settings ─────────────────────────────────────────────
+llm:
+  provider: "groq"
+  model: "llama-3.3-70b-versatile"
+  temperature: 0.7                # Global default
+  temperatureByTask:
+    reply: 0.7
+    content: 0.8
+    relevanceFilter: 0.2
+    searchQueries: 0.3
+  maxTokens: 512                  # Max tokens per reply
+  retries: 2                      # Retry on API failure
+
+# ── Content Calendar ─────────────────────────────────────────
+content:
+  # Global content mix (platforms can override)
+  mix:
+    educational: 0.40
+    personal: 0.25
+    engagement: 0.20
+    promotional: 0.15
+
+  # How often to generate new content batches
+  batchSchedule: "monday 9:00"    # Weekly batch generation
+
+  # Content themes to rotate through
+  themes:
+    - "engineering culture and processes"
+    - "tool comparisons and evaluations"
+    - "remote team coordination"
+    - "shipping speed and deployment"
+    - "developer experience and DX"
+
+# ── Adaptation Engine ────────────────────────────────────────
+adaptation:
+  enabled: true
+  # How aggressively to shift weights (0.0 = no change, 1.0 = instant)
+  learningRate: 0.15
+  # Minimum data points before adjusting a topic
+  minSamples: 20
+  # Lock topics you don't want the engine to adjust
+  lockedTopics: []
+  # Maximum weight the engine can assign to any topic
+  maxWeight: 3.0
+  # Minimum weight (set to 0 to allow full suppression)
+  minWeight: 0.2
+
+# ── Scheduling ───────────────────────────────────────────────
+schedule:
+  # Main loop interval — how often PULSE checks for new conversations
+  searchInterval: 900            # Seconds (15 minutes)
+  # Stagger platform checks to avoid API bursts
+  platformDelay: 30              # Seconds between platform searches
+  # Quiet hours — no posting (UTC)
+  quietHours:
+    start: "04:00"
+    end: "11:00"
+
+# ── Safety & Guardrails ─────────────────────────────────────
+safety:
+  # Never engage with conversations about these topics
+  blockedTopics:
+    - "politics"
+    - "religion"
+    - "cryptocurrency"
+    - "adult content"
+  # Stop words — if any appear in the generated reply, discard it
+  stopWords:
+    - "game-changing"
+    - "revolutionary"
+    - "disrupt"
+    - "synergy"
+    - "circle back"
+  # Maximum times to reply in the same thread
+  maxThreadDepth: 2
+  # Require manual approval for replies above this length
+  manualApprovalLength: 500
+  # Log all generated replies (even discarded ones) for review
+  logAll: true
+
+# ── Reporting ────────────────────────────────────────────────
+reporting:
+  # Auto-generate weekly report
+  weeklyReport: true
+  reportDay: "monday"
+  reportTime: "08:00"            # UTC
+  # Where to send reports
+  output:
+    - "console"
+    - "file"                     # Saves to data/reports/
+  # Dashboard port
+  dashboardPort: 3456

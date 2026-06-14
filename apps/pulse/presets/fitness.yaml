@@ -1,0 +1,191 @@
+# ─── Fitness / Wellness / Health Preset ────────────────────────────────────────
+# Starting point for fitness apps, coaches, supplement brands, gym equipment.
+# Customize persona fields via the setup wizard.
+
+persona:
+  niche: "fitness"
+  idealCustomer: "people trying to get healthier without fad diets or gimmicks"
+  problemSolved: "cutting through fitness misinformation with evidence-based advice"
+  uniqueValue: "practical, no-BS approach backed by real results"
+  tone: "friendly"
+  neverSay:
+    - "shredded"
+    - "no excuses"
+    - "beast mode"
+    - "crush it"
+    - "summer body"
+    - "guilty pleasure"
+    - "cheat meal"
+
+topics:
+  - id: workout-routines
+    query: "best workout routine beginner not seeing results"
+    textMustMatch: ["workout", "routine", "program", "split", "beginner"]
+    replies:
+      - "Consistency beats optimization early on. I'd stick with a simple 3-day full body split for the first 6 months. We break it down here: {{url}}"
+      - "Most beginner programs overcomplicate things. Progressive overload on compounds is 90% of the game: {{url}}"
+
+  - id: nutrition-basics
+    query: "how to eat healthy simple nutrition confused about macros"
+    textMustMatch: ["nutrition", "macros", "calories", "eating", "diet"]
+    replies:
+      - "Forget macro counting at first — just hitting protein targets and eating mostly whole foods gets you 80% there: {{url}}"
+      - "Nutrition doesn't need to be complicated. Here's the simplest approach that actually works: {{url}}"
+
+  - id: weight-loss-plateaus
+    query: "weight loss plateau stuck not losing weight anymore"
+    textMustMatch: ["plateau", "stuck", "weight loss", "stalled", "losing"]
+    replies:
+      - "Plateaus are normal and temporary. Usually it's water retention masking fat loss. Here's how to tell the difference: {{url}}"
+      - "When the scale stalls, measurements and progress photos tell a different story. Our guide: {{url}}"
+      - "Happened to me for 3 weeks — turned out I was underestimating portions. This helped: {{url}}"
+
+  - id: home-workouts
+    query: "effective home workout no equipment limited space"
+    textMustMatch: ["home", "workout", "no equipment", "bodyweight", "apartment"]
+    replies:
+      - "You can build real muscle with just bodyweight if you progress the movements. Our no-equipment program: {{url}}"
+      - "I trained at home for 2 years. Resistance bands + a pull-up bar goes surprisingly far: {{url}}"
+
+  - id: protein-intake
+    query: "how much protein do I need per day building muscle"
+    textMustMatch: ["protein", "grams", "muscle", "intake", "enough"]
+    replies:
+      - "0.7-1g per pound of bodyweight covers most people. More isn't harmful, just expensive. The research: {{url}}"
+      - "You probably need less than influencers say. Here's what the actual studies show: {{url}}"
+
+  - id: supplements-worth-it
+    query: "which supplements actually work waste of money"
+    textMustMatch: ["supplements", "creatine", "worth", "waste", "protein powder"]
+    replies:
+      - "Creatine, vitamin D, and maybe protein powder. That's honestly the short list with strong evidence: {{url}}"
+      - "Save your money on 95% of supplements. Here's the evidence-based tier list: {{url}}"
+
+  - id: recovery-soreness
+    query: "muscle soreness recovery DOMS too sore to train"
+    textMustMatch: ["soreness", "recovery", "DOMS", "rest", "sore"]
+    replies:
+      - "DOMS isn't a sign of a good workout — it's a sign of novelty. Light movement usually helps more than rest: {{url}}"
+      - "Active recovery beats sitting on the couch. Here's what actually speeds up recovery: {{url}}"
+
+  - id: injury-prevention
+    query: "gym injury knee pain shoulder hurts when lifting"
+    textMustMatch: ["injury", "pain", "knee", "shoulder", "hurts", "form"]
+    replies:
+      - "Not a doctor, but most gym pain comes from too much too fast. Deload and check your form — here's a guide: {{url}}"
+      - "I dealt with shoulder impingement for months. What fixed it was fixing my pressing angle: {{url}}"
+
+  - id: motivation-consistency
+    query: "lost gym motivation can't stay consistent fitness"
+    textMustMatch: ["motivation", "consistent", "discipline", "habit", "quit"]
+    replies:
+      - "Motivation fades — systems don't. I stopped relying on feeling like going and just made it a non-negotiable: {{url}}"
+      - "The trick that worked for me: commit to just showing up for 10 minutes. You'll almost always stay: {{url}}"
+
+  - id: bodyweight-fitness
+    query: "calisthenics bodyweight exercises progressive overload without weights"
+    textMustMatch: ["bodyweight", "calisthenics", "pushup", "pullup", "progression"]
+    replies:
+      - "Calisthenics progressions are the key — once pushups are easy, move to archer pushups. Full roadmap: {{url}}"
+      - "You can get seriously strong with just bodyweight. Here's the progression chart we use: {{url}}"
+
+  - id: flexibility-mobility
+    query: "flexibility stretching mobility routine tight hips back"
+    textMustMatch: ["flexibility", "stretching", "mobility", "tight", "stiff"]
+    replies:
+      - "5-10 min of daily mobility work beats an hour-long yoga class once a week. Our quick routine: {{url}}"
+      - "Tight hips are epidemic. These 4 stretches done daily made a huge difference for me: {{url}}"
+
+  - id: meal-prep
+    query: "meal prep ideas simple healthy budget weekly"
+    textMustMatch: ["meal prep", "cooking", "budget", "recipes", "batch"]
+    replies:
+      - "I prep 5 days of meals in about 90 minutes. Keep it to 3 proteins, 3 carbs, lots of veg: {{url}}"
+      - "The key to sustainable meal prep is not getting bored. We rotate 4 templates: {{url}}"
+
+  - id: fitness-apps-tools
+    query: "best fitness app workout tracker recommendation"
+    textMustMatch: ["app", "tracker", "tracking", "recommend", "fitness app"]
+    replies:
+      - "Depends on your goal. For pure lifting tracking, simplicity wins over flashy features: {{url}}"
+      - "I've tried most of them. Here's an honest comparison based on actually using each for a month: {{url}}"
+
+  - id: sleep-quality
+    query: "sleep quality bad can't sleep affecting workouts recovery"
+    textMustMatch: ["sleep", "insomnia", "tired", "rest", "recovery"]
+    replies:
+      - "Sleep is the most underrated performance enhancer. These 3 changes added an hour to my sleep: {{url}}"
+      - "Your workouts won't outrun bad sleep. Here's the evidence-based sleep hygiene checklist: {{url}}"
+
+  - id: stress-management
+    query: "stress management exercise cortisol affecting fitness gains"
+    textMustMatch: ["stress", "cortisol", "burnout", "anxiety", "mental health"]
+    replies:
+      - "High cortisol tanks your recovery and gains. Walking and lower intensity work can actually help more than grinding: {{url}}"
+      - "Exercise is medicine for stress but there's a tipping point. Finding that balance: {{url}}"
+
+contentThemes:
+  - "The minimum effective dose for fitness (less than you think)"
+  - "Why the scale is lying to you (and what to track instead)"
+  - "3 exercises most people do wrong (and simple fixes)"
+  - "What I wish I knew in my first year of training"
+  - "The real reason you're not seeing progress"
+  - "Meal prep for people who hate cooking"
+  - "Why 10,000 steps matters more than your workout"
+  - "The supplements industry doesn't want you to know this"
+  - "How to train around an injury without losing progress"
+  - "Sleep is the most anabolic thing you can do"
+  - "Protein myths that won't die"
+  - "The workout split that fits a busy schedule"
+  - "Why soreness is not a measure of a good workout"
+  - "How to eat well on a tight budget"
+  - "The case for boring, repeatable workouts"
+  - "Mobility work that takes less than 10 minutes"
+  - "Why most transformation photos are misleading"
+  - "How to keep training when motivation disappears"
+  - "The only cardio advice most people need"
+  - "Recovery strategies ranked by actual evidence"
+
+competitors:
+  - "Noom"
+  - "MyFitnessPal"
+  - "Peloton"
+  - "Fitbit"
+  - "Apple Fitness+"
+  - "Strava"
+  - "Hevy"
+  - "MacroFactor"
+
+platforms:
+  x:
+    enabled: true
+    maxPerDay: 10
+    maxPerRun: 3
+  reddit:
+    enabled: true
+    maxPerDay: 6
+    maxPerRun: 2
+    subreddits:
+      - "r/fitness"
+      - "r/loseit"
+      - "r/bodyweightfitness"
+      - "r/running"
+      - "r/nutrition"
+      - "r/MealPrepSunday"
+  hackernews:
+    enabled: false
+    maxPerDay: 0
+    maxPerRun: 0
+  linkedin:
+    enabled: false
+    maxPerDay: 0
+    maxPerRun: 0
+  discord:
+    enabled: true
+    maxPerDay: 5
+    maxPerRun: 2
+    discordServers: []
+  producthunt:
+    enabled: false
+    maxPerDay: 0
+    maxPerRun: 0

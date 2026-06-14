@@ -1,0 +1,48 @@
+name: Deploy Production
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: Branch to deploy
+        required: true
+        default: master
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pulse-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+        with:
+          ref: ${{ inputs.branch }}
+
+      - name: Join tailnet
+        uses: tailscale/github-action@306e68a486fd2350f2bfc3b19fcd143891a4a2d8 # v4
+        with:
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
+          tags: tag:ci
+
+      - name: Deploy Pulse
+        env:
+          DEPLOY_USER: ${{ vars.DEPLOY_USER || 'deploy' }}
+          TAILSCALE_HOST: ${{ vars.TAILSCALE_HOST }}
+        run: |
+          test -n "$TAILSCALE_HOST"
+          ssh -o StrictHostKeyChecking=accept-new "${DEPLOY_USER}@${TAILSCALE_HOST}" \
+            "cd /home/${DEPLOY_USER}/pulse && GIT_BRANCH='${{ inputs.branch }}' AUTO_SWITCH_BRANCH=1 bash scripts/deploy.sh"
+
+      - name: Verify deploy info
+        env:
+          PUBLIC_APP_URL: ${{ vars.PUBLIC_APP_URL }}
+        run: |
+          test -n "$PUBLIC_APP_URL"
+          curl --fail --silent --show-error "${PUBLIC_APP_URL%/}/api/deploy-info"

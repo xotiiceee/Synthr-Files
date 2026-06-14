@@ -17,6 +17,14 @@ apps/*/.vercel/
 packages/*/node_modules/
 packages/*/dist/
 
+# Pulse-specific
+apps/pulse/data/
+apps/pulse/*.db
+apps/pulse/*.db-wal
+apps/pulse/*.db-shm
+apps/pulse/hosted/deploy-meta.json
+apps/pulse/.replit-tools/
+
 # Environment
 .env*
 !.env.example

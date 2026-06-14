@@ -1,0 +1,187 @@
+# ─── Local Business Preset ────────────────────────────────────────────────────
+# Starting point for restaurants, salons, service businesses, local shops.
+# Customize persona fields via the setup wizard.
+
+persona:
+  niche: "local-business"
+  idealCustomer: "local business owners who want more customers without big ad budgets"
+  problemSolved: "getting found online and turning foot traffic into loyal regulars"
+  uniqueValue: "been running local businesses for years — this stuff actually works"
+  tone: "friendly"
+  neverSay:
+    - "scale"
+    - "disrupt"
+    - "leverage"
+    - "growth hack"
+    - "funnel"
+    - "omnichannel"
+
+topics:
+  - id: google-reviews
+    query: "how to get more Google reviews small business asking customers"
+    textMustMatch: ["Google", "reviews", "rating", "stars", "asking"]
+    replies:
+      - "We ask right after the service when they're happiest. A simple text with a direct link works best: {{url}}"
+      - "QR code on the receipt linking straight to your Google review page. We got 40 reviews in a month: {{url}}"
+
+  - id: local-seo
+    query: "local SEO small business Google Maps ranking near me"
+    textMustMatch: ["local SEO", "Google Maps", "ranking", "near me", "search"]
+    replies:
+      - "Complete your Google Business Profile 100%, post weekly, and get reviews with keywords. That's 80% of local SEO: {{url}}"
+      - "NAP consistency across all directories matters more than people think. Quick checklist: {{url}}"
+
+  - id: customer-retention-local
+    query: "customer retention small business repeat customers coming back"
+    textMustMatch: ["retention", "repeat", "regulars", "coming back", "loyalty"]
+    replies:
+      - "A birthday text with a small freebie brings people back more than any discount campaign: {{url}}"
+      - "We track who hasn't visited in 60 days and send a personal check-in. Simple but effective: {{url}}"
+
+  - id: social-media-local
+    query: "social media small business what to post local restaurant salon"
+    textMustMatch: ["social media", "posting", "Instagram", "Facebook", "content"]
+    replies:
+      - "Behind-the-scenes content outperforms polished posts for local businesses every time: {{url}}"
+      - "Post your team, your process, your happy customers (with permission). People buy from people: {{url}}"
+      - "Three types of posts that work: before/after, team spotlights, and customer stories. Rotate: {{url}}"
+
+  - id: hiring-staff
+    query: "hiring staff small business finding good employees hard"
+    textMustMatch: ["hiring", "staff", "employees", "finding", "recruiting"]
+    replies:
+      - "Our best hires came from asking current team members for referrals. $200 referral bonus pays for itself: {{url}}"
+      - "Indeed and Craigslist still work for local roles if the listing is honest and specific: {{url}}"
+
+  - id: scheduling-booking
+    query: "appointment scheduling booking system small business no-shows"
+    textMustMatch: ["scheduling", "booking", "appointment", "no-show", "calendar"]
+    replies:
+      - "Text reminders 24hr before cut our no-shows 70%. We use a simple system: {{url}}"
+      - "Online booking increased our appointments 30% — people book at midnight when we're closed: {{url}}"
+
+  - id: loyalty-programs
+    query: "loyalty program small business punch card digital rewards"
+    textMustMatch: ["loyalty", "rewards", "punch card", "program", "points"]
+    replies:
+      - "Digital punch cards via text work way better than physical cards people lose. Our setup: {{url}}"
+      - "Keep it simple. Buy 9, get 1 free. Complicated point systems confuse customers: {{url}}"
+
+  - id: seasonal-marketing
+    query: "seasonal marketing slow season small business promotion ideas"
+    textMustMatch: ["seasonal", "slow season", "promotion", "holiday", "marketing"]
+    replies:
+      - "We pre-sell gift cards in November at a bonus (buy $50, get $60). Drives January traffic: {{url}}"
+      - "Slow season = time to build email list and run events. Here's our seasonal playbook: {{url}}"
+
+  - id: community-events
+    query: "community events small business local marketing networking"
+    textMustMatch: ["community", "event", "local", "networking", "involvement"]
+    replies:
+      - "We sponsor the little league team for $200/season and get more goodwill than any Facebook ad: {{url}}"
+      - "Host a free workshop at your location. Costs almost nothing and fills your space with potential customers: {{url}}"
+
+  - id: word-of-mouth
+    query: "word of mouth referrals small business grow organically"
+    textMustMatch: ["word of mouth", "referral", "recommend", "organic", "tell friends"]
+    replies:
+      - "Referral cards work: 'Give this to a friend, you both get 15% off.' Simple and trackable: {{url}}"
+      - "The best marketing is being so good people can't stop talking about you. But a nudge helps: {{url}}"
+
+  - id: yelp-management
+    query: "Yelp reviews negative review responding small business"
+    textMustMatch: ["Yelp", "negative review", "responding", "bad review", "reputation"]
+    replies:
+      - "Always respond to negative reviews publicly — politely and specifically. Other customers are reading: {{url}}"
+      - "One bad review won't sink you if you have 50 good ones. Volume is your defense: {{url}}"
+
+  - id: google-business-profile
+    query: "Google Business Profile optimization local business setup"
+    textMustMatch: ["Google Business", "profile", "listing", "maps", "hours"]
+    replies:
+      - "Post to your Google Business Profile weekly. Google rewards active businesses with better visibility: {{url}}"
+      - "Add photos to your GBP monthly — listings with 100+ photos get 520% more calls. Seriously: {{url}}"
+
+  - id: online-ordering
+    query: "online ordering system restaurant small business delivery"
+    textMustMatch: ["online ordering", "delivery", "takeout", "order", "restaurant"]
+    replies:
+      - "Third-party apps take 30% — your own ordering page takes 3%. The math is clear: {{url}}"
+      - "We added online ordering through our website and kept all the margin. Setup was easier than expected: {{url}}"
+
+  - id: appointment-booking
+    query: "online booking system salon spa service business clients"
+    textMustMatch: ["booking", "salon", "spa", "appointment", "schedule"]
+    replies:
+      - "Clients expect to book online now. We saw a 40% increase when we added it to our site: {{url}}"
+      - "The right booking system also handles reminders, deposits, and cancellation policies: {{url}}"
+
+  - id: local-advertising
+    query: "local advertising small business budget marketing ideas cheap"
+    textMustMatch: ["advertising", "budget", "local", "cheap", "marketing"]
+    replies:
+      - "Google Local Services ads have the best ROI for most local businesses. Pay per lead, not per click: {{url}}"
+      - "Nextdoor, local Facebook groups, and a Google Business Profile go further than billboards: {{url}}"
+
+contentThemes:
+  - "The Google review strategy that costs nothing and works fast"
+  - "Why your Google Business Profile is your most important marketing tool"
+  - "How to handle negative reviews without losing your cool"
+  - "The loyalty program setup that fits any budget"
+  - "Social media for local business: what actually moves the needle"
+  - "How to survive slow season without discounting everything"
+  - "The hiring approach that finds good people (hint: ask your team)"
+  - "Why online booking isn't optional anymore"
+  - "Local SEO in 20 minutes a week"
+  - "The text marketing strategy customers actually want"
+  - "Community involvement that's also great marketing"
+  - "How to compete with chains as a small business"
+  - "The referral system that runs itself"
+  - "Reducing no-shows without annoying your customers"
+  - "Why your website only needs 3 pages"
+  - "The $0 marketing strategies that still work"
+  - "How to ask for reviews without being pushy"
+  - "Seasonal promotion ideas that don't kill margins"
+  - "Stop paying 30% to delivery apps — here's how"
+  - "The morning routine of a business owner who doesn't burn out"
+
+competitors:
+  - "Yelp"
+  - "Google Business"
+  - "Square"
+  - "Toast"
+  - "Mindbody"
+  - "Vagaro"
+  - "Clover"
+
+platforms:
+  x:
+    enabled: true
+    maxPerDay: 6
+    maxPerRun: 2
+  reddit:
+    enabled: true
+    maxPerDay: 5
+    maxPerRun: 2
+    subreddits:
+      - "r/smallbusiness"
+      - "r/Entrepreneur"
+      - "r/marketing"
+      - "r/restaurateur"
+  hackernews:
+    enabled: false
+    maxPerDay: 0
+    maxPerRun: 0
+  linkedin:
+    enabled: false
+    maxPerDay: 0
+    maxPerRun: 0
+  discord:
+    enabled: false
+    maxPerDay: 0
+    maxPerRun: 0
+    discordServers: []
+  producthunt:
+    enabled: false
+    maxPerDay: 0
+    maxPerRun: 0

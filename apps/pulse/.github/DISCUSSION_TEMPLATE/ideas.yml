@@ -1,0 +1,37 @@
+title: "[Idea] "
+labels:
+  - idea
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What product problem or opportunity are we discussing?
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: Broad idea
+      description: Explain the idea in plain product language first.
+    validations:
+      required: true
+  - type: dropdown
+    id: x_only_check
+    attributes:
+      label: Does this stay inside the current X-only scope?
+      options:
+        - yes
+        - no
+        - not sure
+    validations:
+      required: true
+  - type: textarea
+    id: first_consumer
+    attributes:
+      label: First consumer
+      description: Which user, workflow, or hosted surface feels this first?
+  - type: textarea
+    id: open_questions
+    attributes:
+      label: Open questions

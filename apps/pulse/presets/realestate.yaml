@@ -1,0 +1,187 @@
+# ─── Real Estate Preset ───────────────────────────────────────────────────────
+# Starting point for realtors, brokerages, property managers, real estate tech.
+# Customize persona fields via the setup wizard.
+
+persona:
+  niche: "realestate"
+  idealCustomer: "real estate agents and small brokerages wanting more listings and closings"
+  problemSolved: "generating leads and building a personal brand that wins listings"
+  uniqueValue: "practical strategies from an agent who's been in the trenches"
+  tone: "friendly"
+  neverSay:
+    - "guru"
+    - "crushing it"
+    - "dream home"
+    - "turnkey"
+    - "this won't last"
+    - "act fast"
+
+topics:
+  - id: lead-generation
+    query: "real estate lead generation how to get more leads agent"
+    textMustMatch: ["leads", "lead gen", "generate", "prospects", "buyer"]
+    replies:
+      - "My best leads come from past clients and local content, not Zillow. The system I use: {{url}}"
+      - "Geographic farming with monthly mailers still works. Combined with social, it's even better: {{url}}"
+
+  - id: open-houses
+    query: "open house tips real estate sign-ins converting visitors"
+    textMustMatch: ["open house", "visitors", "sign-in", "showing", "traffic"]
+    replies:
+      - "The sign-in sheet is the whole point. Digital sign-in with auto follow-up changes the game: {{url}}"
+      - "Neighborhood invites for open houses bring future sellers, not just buyers. Dual purpose: {{url}}"
+
+  - id: staging-homes
+    query: "home staging tips selling faster budget staging ideas"
+    textMustMatch: ["staging", "selling", "prepare", "presentation", "photos"]
+    replies:
+      - "Declutter, depersonalize, and deep clean. Those three D's do 80% of the work: {{url}}"
+      - "We stage the living room, kitchen, and primary bedroom. Skip the rest on a budget: {{url}}"
+
+  - id: crm-realtors
+    query: "CRM for real estate agents best follow-up system contacts"
+    textMustMatch: ["CRM", "follow-up", "contacts", "database", "system"]
+    replies:
+      - "The best CRM is the one you actually use. I tried 5 before finding what stuck. Comparison: {{url}}"
+      - "Consistent follow-up beats fancy software. Here's my simple touch system: {{url}}"
+
+  - id: market-analysis
+    query: "real estate market analysis CMA comparative pricing"
+    textMustMatch: ["market", "analysis", "CMA", "pricing", "comps"]
+    replies:
+      - "A solid CMA wins listings. I walk sellers through it in person, not just email a PDF: {{url}}"
+      - "Being the local market expert means knowing the numbers cold. How I stay on top of data: {{url}}"
+
+  - id: first-time-buyers
+    query: "first time home buyer advice tips mistakes to avoid"
+    textMustMatch: ["first time", "buyer", "advice", "mortgage", "purchase"]
+    replies:
+      - "Get pre-approved before you start looking. Saves heartbreak and shows sellers you're serious: {{url}}"
+      - "The biggest mistake first-time buyers make is skipping the inspection. Never do that: {{url}}"
+      - "I created a first-time buyer guide that I send before our first meeting. Sets expectations right: {{url}}"
+
+  - id: investment-properties
+    query: "real estate investment property rental income ROI analysis"
+    textMustMatch: ["investment", "rental", "ROI", "property", "cash flow"]
+    replies:
+      - "Cash flow is king. I run every deal through a simple calculator before recommending it: {{url}}"
+      - "Cap rate isn't everything — vacancy rate and maintenance costs eat into returns. Full analysis: {{url}}"
+
+  - id: virtual-tours
+    query: "virtual tour real estate video walkthrough 3D tour listing"
+    textMustMatch: ["virtual tour", "video", "3D", "walkthrough", "Matterport"]
+    replies:
+      - "Virtual tours generate 40% more engagement on listings. Worth the $200-400 investment: {{url}}"
+      - "Video walkthroughs on social media sell houses. My phone setup costs nothing extra: {{url}}"
+
+  - id: listing-photos
+    query: "real estate photography listing photos professional vs DIY"
+    textMustMatch: ["photos", "photography", "listing", "pictures", "professional"]
+    replies:
+      - "Professional photos are non-negotiable. They pay for themselves 100x over. My photographer referrals: {{url}}"
+      - "If you must DIY: shoot at golden hour, wide angle, all lights on, no pets or people: {{url}}"
+
+  - id: neighborhood-guides
+    query: "neighborhood guide content real estate local area marketing"
+    textMustMatch: ["neighborhood", "area", "local", "community", "guide"]
+    replies:
+      - "Neighborhood guides are evergreen SEO gold. Write one for each area you farm: {{url}}"
+      - "I post weekly 'hidden gems' in my farm area. Positions me as the local expert: {{url}}"
+
+  - id: mortgage-rates
+    query: "mortgage rates impact real estate market buyer affordability"
+    textMustMatch: ["mortgage", "rates", "interest", "affordability", "lending"]
+    replies:
+      - "I partner with a lender who does buyer seminars. We co-market and share leads: {{url}}"
+      - "Explaining rate buydowns to buyers opens doors they thought were closed. Quick explainer: {{url}}"
+
+  - id: closing-deals
+    query: "real estate closing negotiation tips getting offers accepted"
+    textMustMatch: ["closing", "negotiation", "offer", "accepted", "deal"]
+    replies:
+      - "The best negotiators listen more than they talk. My approach to getting deals done: {{url}}"
+      - "Clean offers with fewer contingencies win over higher prices in this market: {{url}}"
+
+  - id: referral-networks
+    query: "real estate referral network building sphere of influence"
+    textMustMatch: ["referral", "network", "sphere", "connections", "relationships"]
+    replies:
+      - "My sphere of influence generates 60% of my business. The touch system I use: {{url}}"
+      - "Coffee with 2 past clients a week. Simple, free, and my best lead source: {{url}}"
+
+  - id: social-media-agents
+    query: "real estate social media marketing Instagram content agent"
+    textMustMatch: ["social media", "Instagram", "content", "posting", "marketing"]
+    replies:
+      - "Market updates, just-listed, and local content in a 3:1:1 ratio. Keeps it interesting: {{url}}"
+      - "Video walkthroughs on Reels get more reach than any other content type for agents: {{url}}"
+
+  - id: property-management
+    query: "property management rental landlord tenant issues screening"
+    textMustMatch: ["property management", "rental", "tenant", "landlord", "screening"]
+    replies:
+      - "Thorough tenant screening saves thousands in eviction costs. Our checklist: {{url}}"
+      - "Good systems make property management manageable. Here's how I handle 20+ units: {{url}}"
+
+contentThemes:
+  - "The lead generation system that replaced my Zillow spend"
+  - "Why professional listing photos are your best investment"
+  - "First-time buyer mistakes I see every week"
+  - "The CRM routine that keeps my pipeline full"
+  - "How I win listing presentations (hint: it's the CMA)"
+  - "Virtual tours: worth the cost? My data says yes"
+  - "The staging checklist that helps homes sell faster"
+  - "Building a referral network that generates leads on autopilot"
+  - "Social media content that actually generates real estate leads"
+  - "Neighborhood farming: the long game that pays off"
+  - "Investment property analysis in 10 minutes"
+  - "The open house strategy most agents miss"
+  - "How to explain mortgage rates to nervous buyers"
+  - "The follow-up system for leads who aren't ready yet"
+  - "Video walkthroughs that sell homes on social media"
+  - "Why I write neighborhood guides (and the SEO results)"
+  - "The closing negotiation tactic that works every time"
+  - "How to build a real estate brand in your local market"
+  - "Property management systems that scale with your portfolio"
+  - "The weekly routine of a top-producing agent"
+
+competitors:
+  - "Zillow"
+  - "Redfin"
+  - "Realtor.com"
+  - "Compass"
+  - "Keller Williams"
+  - "Coldwell Banker"
+  - "RE/MAX"
+
+platforms:
+  x:
+    enabled: true
+    maxPerDay: 8
+    maxPerRun: 3
+  reddit:
+    enabled: true
+    maxPerDay: 5
+    maxPerRun: 2
+    subreddits:
+      - "r/RealEstate"
+      - "r/realtors"
+      - "r/RealEstateInvesting"
+      - "r/FirstTimeHomeBuyer"
+  hackernews:
+    enabled: false
+    maxPerDay: 0
+    maxPerRun: 0
+  linkedin:
+    enabled: true
+    maxPerDay: 4
+    maxPerRun: 2
+  discord:
+    enabled: false
+    maxPerDay: 0
+    maxPerRun: 0
+    discordServers: []
+  producthunt:
+    enabled: false
+    maxPerDay: 0
+    maxPerRun: 0

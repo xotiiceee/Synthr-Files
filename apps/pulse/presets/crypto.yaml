@@ -1,0 +1,189 @@
+# ─── Crypto / Web3 / DeFi Preset ──────────────────────────────────────────────
+# Starting point for crypto tools, DeFi protocols, wallets, analytics platforms.
+# Customize persona fields via the setup wizard.
+
+persona:
+  niche: "crypto"
+  idealCustomer: "crypto-native users who want better tools, not hype"
+  problemSolved: "making DeFi and onchain data accessible and actionable"
+  uniqueValue: "data-driven insights without the noise"
+  tone: "technical"
+  neverSay:
+    - "to the moon"
+    - "WAGMI"
+    - "not financial advice"
+    - "diamond hands"
+    - "LFG"
+    - "number go up"
+    - "few understand"
+
+topics:
+  - id: defi-yield-strategies
+    query: "DeFi yield farming best strategies safe APY 2026"
+    textMustMatch: ["yield", "APY", "farming", "DeFi", "strategy"]
+    replies:
+      - "Sustainable yield comes from real revenue, not emissions. We track which protocols actually generate fees: {{url}}"
+      - "Before chasing APY, check the TVL trend and where the yield actually comes from. Our framework: {{url}}"
+
+  - id: wallet-security
+    query: "crypto wallet hacked funds stolen how to secure"
+    textMustMatch: ["wallet", "hacked", "security", "stolen", "phishing"]
+    replies:
+      - "Hardware wallet + separate hot wallet for daily use. Never sign unlimited approvals. Security checklist: {{url}}"
+      - "Most hacks are phishing, not exploits. Revoke old approvals and use a dedicated signing wallet: {{url}}"
+
+  - id: gas-fee-optimization
+    query: "gas fees too high Ethereum L2 cheaper alternative"
+    textMustMatch: ["gas", "fees", "expensive", "L2", "transaction"]
+    replies:
+      - "L2s have made gas basically irrelevant for most use cases. We compared the real costs: {{url}}"
+      - "Batch your transactions and use L2s. Here's a cost comparison across chains: {{url}}"
+
+  - id: token-economics
+    query: "tokenomics analysis red flags what to look for"
+    textMustMatch: ["tokenomics", "supply", "vesting", "unlock", "inflation"]
+    replies:
+      - "Check unlock schedules, insider allocation, and whether the token captures protocol revenue. Our analysis framework: {{url}}"
+      - "Most tokens are designed to extract value, not share it. Here's how to spot the difference: {{url}}"
+
+  - id: smart-contract-security
+    query: "smart contract audit vulnerability rug pull risk"
+    textMustMatch: ["smart contract", "audit", "vulnerability", "exploit", "security"]
+    replies:
+      - "An audit helps but isn't a guarantee. Check if the contract is verified, immutable, and what admin keys exist: {{url}}"
+      - "We built a quick checklist for evaluating contract risk before depositing: {{url}}"
+
+  - id: nft-utility
+    query: "NFT utility beyond art real use cases 2026"
+    textMustMatch: ["NFT", "utility", "use case", "beyond art", "token-gating"]
+    replies:
+      - "Token-gating, onchain credentials, and composable game items are where the real utility lives: {{url}}"
+      - "The art speculation phase is over. Here's what's actually working with NFTs now: {{url}}"
+
+  - id: dao-governance
+    query: "DAO governance voting participation low turnout"
+    textMustMatch: ["DAO", "governance", "voting", "proposal", "delegate"]
+    replies:
+      - "Delegation and smaller working groups solve the voter apathy problem. What's working in practice: {{url}}"
+      - "Most DAOs are governance theater. The ones that work have clear scope and real accountability: {{url}}"
+
+  - id: cross-chain-bridging
+    query: "cross chain bridge safe which bridge to use risk"
+    textMustMatch: ["bridge", "cross-chain", "transfer", "multichain", "risk"]
+    replies:
+      - "Use native bridges when possible — they're slower but way safer. Our bridge comparison: {{url}}"
+      - "After so many bridge exploits, we only recommend canonical bridges and checked aggregators: {{url}}"
+
+  - id: mev-protection
+    query: "MEV front-running sandwich attack protection"
+    textMustMatch: ["MEV", "front-run", "sandwich", "slippage", "flashbot"]
+    replies:
+      - "Private RPCs and MEV-protected relays solve most sandwich attacks. Setup guide: {{url}}"
+      - "Set tighter slippage and use a private mempool. Here's the full MEV protection stack: {{url}}"
+
+  - id: staking-comparison
+    query: "staking rewards comparison best staking platform liquid"
+    textMustMatch: ["staking", "rewards", "validator", "liquid", "stake"]
+    replies:
+      - "Liquid staking gives you yield without locking up capital. We compared the top protocols: {{url}}"
+      - "Check the commission rate, slashing history, and whether you keep custody. Our comparison: {{url}}"
+
+  - id: l2-scaling
+    query: "Layer 2 scaling comparison rollup optimistic zk"
+    textMustMatch: ["L2", "rollup", "scaling", "optimistic", "zk"]
+    replies:
+      - "ZK rollups are winning on finality time, optimistic on compatibility. The tradeoffs matter for your use case: {{url}}"
+      - "We track L2 metrics daily — TPS, costs, and actual decentralization. Live dashboard: {{url}}"
+
+  - id: crypto-regulation
+    query: "crypto regulation compliance what's changing 2026"
+    textMustMatch: ["regulation", "compliance", "SEC", "legal", "tax"]
+    replies:
+      - "Regulatory clarity is actually coming. Here's what builders need to know right now: {{url}}"
+      - "We keep a running summary of regulatory changes that actually affect DeFi users: {{url}}"
+
+  - id: airdrop-farming
+    query: "airdrop farming strategy which protocols eligible"
+    textMustMatch: ["airdrop", "farming", "eligible", "points", "criteria"]
+    replies:
+      - "The meta has shifted — protocols are filtering for genuine usage now, not just transactions. What matters: {{url}}"
+      - "Quality interactions beat volume farming. Here's which protocols are likely rewarding real users: {{url}}"
+
+  - id: portfolio-tracking
+    query: "crypto portfolio tracker DeFi positions multiple wallets"
+    textMustMatch: ["portfolio", "tracker", "positions", "wallets", "DeFi"]
+    replies:
+      - "Tracking DeFi positions across chains is still a mess. We compared the tools that actually work: {{url}}"
+      - "One dashboard for everything is the dream. Here's what gets closest right now: {{url}}"
+
+  - id: onchain-analytics
+    query: "onchain analytics data smart money wallet tracking"
+    textMustMatch: ["onchain", "analytics", "data", "smart money", "wallet"]
+    replies:
+      - "Following smart money is useful but lagging. We look at contract interactions instead of just transfers: {{url}}"
+      - "Onchain data tells you what people do, not what they say. Our analytics approach: {{url}}"
+
+contentThemes:
+  - "Real yield vs emission yield — how to tell the difference"
+  - "The 5-minute security audit everyone should do on their wallet"
+  - "Why most tokenomics are designed to fail"
+  - "L2 landscape in 2026: what actually matters"
+  - "The bridge exploit pattern every DeFi user should know"
+  - "How to read a smart contract without being a developer"
+  - "Why TVL is a vanity metric (and what to track instead)"
+  - "The airdrop farming playbook has changed — here's how"
+  - "MEV is stealing from you. Here's how to stop it"
+  - "Staking yield comparison: who's actually paying real revenue"
+  - "The DAO governance model that's actually working"
+  - "Gas optimization tricks that save real money"
+  - "Why crypto portfolio tracking is still broken"
+  - "Onchain signals that predicted the last 3 major moves"
+  - "Cross-chain UX is getting better — here's proof"
+  - "The regulatory changes that matter (and the ones that don't)"
+  - "How to evaluate a DeFi protocol in 10 minutes"
+  - "NFT utility that survived the bear market"
+  - "Smart contract red flags you can check without Solidity knowledge"
+  - "The crypto tools I actually use every day"
+
+competitors:
+  - "Dune"
+  - "Nansen"
+  - "DeBank"
+  - "Zapper"
+  - "Zerion"
+  - "CoinGecko"
+  - "DeFiLlama"
+  - "Arkham"
+
+platforms:
+  x:
+    enabled: true
+    maxPerDay: 12
+    maxPerRun: 4
+  reddit:
+    enabled: true
+    maxPerDay: 5
+    maxPerRun: 2
+    subreddits:
+      - "r/CryptoCurrency"
+      - "r/defi"
+      - "r/ethereum"
+      - "r/solana"
+      - "r/web3"
+  hackernews:
+    enabled: false
+    maxPerDay: 0
+    maxPerRun: 0
+  linkedin:
+    enabled: false
+    maxPerDay: 0
+    maxPerRun: 0
+  discord:
+    enabled: true
+    maxPerDay: 8
+    maxPerRun: 3
+    discordServers: []
+  producthunt:
+    enabled: false
+    maxPerDay: 0
+    maxPerRun: 0

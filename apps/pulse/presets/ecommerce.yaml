@@ -1,0 +1,187 @@
+# ─── Ecommerce / Shopify / D2C Preset ─────────────────────────────────────────
+# Starting point for online stores, Shopify apps, D2C brands, ecommerce tools.
+# Customize persona fields via the setup wizard.
+
+persona:
+  niche: "ecommerce"
+  idealCustomer: "ecommerce store owners doing $10K-$500K/month looking to scale"
+  problemSolved: "turning traffic into repeat customers without burning ad budget"
+  uniqueValue: "practical, tested tactics from running real stores"
+  tone: "casual"
+  neverSay:
+    - "passive income"
+    - "get rich quick"
+    - "hustle"
+    - "boss babe"
+    - "six figures"
+    - "print on demand is easy"
+
+topics:
+  - id: conversion-rate
+    query: "ecommerce conversion rate low how to improve store"
+    textMustMatch: ["conversion", "rate", "store", "checkout", "visitors"]
+    replies:
+      - "We went from 1.2% to 3.8% with three changes: faster load time, trust badges above fold, and simplifying checkout. Details: {{url}}"
+      - "Most conversion issues are trust issues. Social proof near the add-to-cart button works surprisingly well: {{url}}"
+
+  - id: abandoned-carts
+    query: "abandoned cart recovery email strategy Shopify"
+    textMustMatch: ["abandoned", "cart", "recovery", "email", "checkout"]
+    replies:
+      - "3-email sequence: reminder at 1hr, social proof at 24hr, small discount at 48hr. Our exact templates: {{url}}"
+      - "We recover about 15% of abandoned carts with a simple SMS + email combo. The setup: {{url}}"
+
+  - id: product-photography
+    query: "product photography tips ecommerce DIY budget"
+    textMustMatch: ["product", "photos", "photography", "images", "lifestyle"]
+    replies:
+      - "Natural light + white poster board + your phone gets you 80% of the way there. Our DIY setup: {{url}}"
+      - "Lifestyle photos convert better than white backgrounds for most D2C products. Examples and how-to: {{url}}"
+
+  - id: shipping-costs
+    query: "shipping costs eating margins free shipping threshold"
+    textMustMatch: ["shipping", "costs", "free shipping", "margins", "fulfillment"]
+    replies:
+      - "Free shipping threshold at 1.5x your AOV. Bake shipping into product price. Customers prefer 'free' even if the price is higher: {{url}}"
+      - "We negotiated rates by showing volume commitments to carriers. Saved 30% on shipping: {{url}}"
+
+  - id: customer-retention
+    query: "customer retention repeat purchases ecommerce loyalty"
+    textMustMatch: ["retention", "repeat", "loyalty", "returning", "LTV"]
+    replies:
+      - "Acquiring a new customer costs 5x more than retaining one. We focus on post-purchase email flows: {{url}}"
+      - "A simple points program increased our repeat purchase rate 40%. Nothing fancy — just consistent: {{url}}"
+
+  - id: email-marketing
+    query: "email marketing ecommerce flows Klaviyo revenue"
+    textMustMatch: ["email", "marketing", "flows", "Klaviyo", "newsletter"]
+    replies:
+      - "Welcome, abandoned cart, post-purchase, and win-back. Those 4 flows do 80% of email revenue: {{url}}"
+      - "We generate 30% of revenue from email. It's not sexy but it's the most reliable channel: {{url}}"
+
+  - id: influencer-marketing
+    query: "influencer marketing ecommerce micro influencer ROI"
+    textMustMatch: ["influencer", "marketing", "collab", "UGC", "creator"]
+    replies:
+      - "Micro-influencers (5-50K followers) with high engagement beat big names every time for D2C. Our approach: {{url}}"
+      - "We pay for UGC rights, not posts. Way better ROI and you own the content forever: {{url}}"
+
+  - id: ad-spend-roi
+    query: "Facebook ads ROAS declining ad costs too high ecommerce"
+    textMustMatch: ["ads", "ROAS", "ad spend", "Facebook", "Meta", "costs"]
+    replies:
+      - "Our ROAS improved when we stopped optimizing ads and started optimizing landing pages. The shift: {{url}}"
+      - "Broad targeting + better creative beats narrow targeting + mediocre creative in 2026: {{url}}"
+
+  - id: returns-management
+    query: "ecommerce returns rate high reducing returns policy"
+    textMustMatch: ["returns", "refund", "exchange", "return rate", "policy"]
+    replies:
+      - "Better size guides and video demos cut our return rate in half. Cheaper than processing returns: {{url}}"
+      - "We switched to exchange-first policy instead of refund-first. Retained 60% of return revenue: {{url}}"
+
+  - id: inventory-management
+    query: "inventory management ecommerce stockouts overstock forecasting"
+    textMustMatch: ["inventory", "stock", "overstock", "forecasting", "supply"]
+    replies:
+      - "We use a simple spreadsheet model based on rolling 8-week velocity. Nothing fancy but it works: {{url}}"
+      - "Stockouts cost more than overstock. Safety stock = 2 weeks of average sales for your top 20%: {{url}}"
+
+  - id: dropshipping-reality
+    query: "dropshipping worth it 2026 margins problems"
+    textMustMatch: ["dropshipping", "supplier", "margins", "AliExpress", "worth"]
+    replies:
+      - "Dropshipping works when you own the brand and customer relationship. Just reselling from AliExpress is a race to zero: {{url}}"
+      - "We started dropshipping, then moved to 3PL once we had data on which SKUs sell. The transition: {{url}}"
+
+  - id: upselling-cross-selling
+    query: "upselling cross-selling strategies ecommerce AOV increase"
+    textMustMatch: ["upsell", "cross-sell", "AOV", "bundle", "order value"]
+    replies:
+      - "Post-purchase upsells convert 3x better than pre-checkout ones. Less friction: {{url}}"
+      - "Simple bundling with a 10-15% discount increased our AOV by $12. The setup: {{url}}"
+
+  - id: reviews-social-proof
+    query: "getting product reviews ecommerce social proof strategy"
+    textMustMatch: ["reviews", "social proof", "testimonials", "ratings", "UGC"]
+    replies:
+      - "Photo reviews convert 3x better than text-only. We incentivize with points, not discounts: {{url}}"
+      - "Ask for reviews 7 days post-delivery, not post-purchase. Timing matters a lot: {{url}}"
+
+  - id: ecommerce-seo
+    query: "ecommerce SEO product pages ranking category pages"
+    textMustMatch: ["SEO", "ranking", "organic", "product page", "Google"]
+    replies:
+      - "Category pages rank, product pages convert. Focus SEO effort on collections with buying intent: {{url}}"
+      - "Internal linking between related products is the most underrated ecommerce SEO tactic: {{url}}"
+
+  - id: pricing-strategy
+    query: "ecommerce pricing strategy discount too much margin"
+    textMustMatch: ["pricing", "discount", "margin", "price", "markup"]
+    replies:
+      - "Constant discounting trains customers to never pay full price. We moved to value-adds instead: {{url}}"
+      - "Charm pricing still works. $47 beats $50 every time in our tests. More pricing psychology: {{url}}"
+
+contentThemes:
+  - "The 4 email flows that generate 30% of our revenue"
+  - "Why your product page isn't converting (it's not the price)"
+  - "How we reduced returns 50% without changing our return policy"
+  - "The real cost of free shipping and how to make it work"
+  - "Stop discounting — do this instead to move inventory"
+  - "Micro-influencer outreach template that actually gets replies"
+  - "Why your Facebook ads stopped working (and the fix)"
+  - "The product photography setup that costs under $50"
+  - "Customer retention strategies that don't require an app"
+  - "How to calculate your true customer acquisition cost"
+  - "The abandoned cart email that recovers 15% of lost sales"
+  - "Inventory forecasting for stores without a data team"
+  - "Why AOV matters more than conversion rate right now"
+  - "The review collection strategy that doubled our social proof"
+  - "Ecommerce SEO wins you can implement this weekend"
+  - "When to raise prices (and how to do it without losing customers)"
+  - "The shipping strategy that increased our margins 8%"
+  - "Bundle pricing psychology that works in every niche"
+  - "Post-purchase experience: the revenue you're leaving on the table"
+  - "How we went from dropshipping to our own warehouse"
+
+competitors:
+  - "Shopify"
+  - "WooCommerce"
+  - "BigCommerce"
+  - "Squarespace"
+  - "Etsy"
+  - "Amazon FBA"
+  - "Wix"
+
+platforms:
+  x:
+    enabled: true
+    maxPerDay: 8
+    maxPerRun: 3
+  reddit:
+    enabled: true
+    maxPerDay: 6
+    maxPerRun: 2
+    subreddits:
+      - "r/ecommerce"
+      - "r/shopify"
+      - "r/Entrepreneur"
+      - "r/smallbusiness"
+      - "r/dropship"
+  hackernews:
+    enabled: false
+    maxPerDay: 0
+    maxPerRun: 0
+  linkedin:
+    enabled: true
+    maxPerDay: 3
+    maxPerRun: 2
+  discord:
+    enabled: false
+    maxPerDay: 0
+    maxPerRun: 0
+    discordServers: []
+  producthunt:
+    enabled: false
+    maxPerDay: 0
+    maxPerRun: 0

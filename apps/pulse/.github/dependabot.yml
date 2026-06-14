@@ -1,0 +1,26 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 10
+    groups:
+      root-npm:
+        patterns:
+          - "*"
+
+  - package-ecosystem: npm
+    directory: /hosted/ui
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 10
+    groups:
+      hosted-ui:
+        patterns:
+          - "*"
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly

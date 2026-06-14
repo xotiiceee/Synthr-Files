@@ -1,0 +1,14 @@
+node_modules/
+dist/
+data/
+*.db
+*.db-wal
+*.db-shm
+.env
+pulse.yaml
+hosted/ui/node_modules/
+hosted/ui/dist/
+hosted/deploy-meta.json
+
+# DATA Tools - All sensitive data in one place (added by DATA Tools)
+.replit-tools/

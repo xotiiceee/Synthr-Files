@@ -1,0 +1,199 @@
+# ─── SaaS / Developer Tools Preset ────────────────────────────────────────────
+# Starting point for dev tools, APIs, infrastructure, and B2B SaaS products.
+# Customize persona fields (name, brandName, website, etc.) via the setup wizard.
+
+persona:
+  # These get overwritten by the wizard — defaults here set the vibe
+  niche: "saas"
+  idealCustomer: "developers and engineering teams building production software"
+  problemSolved: "reducing complexity in the dev workflow"
+  uniqueValue: "developer-first design with transparent pricing"
+  tone: "technical"
+  neverSay:
+    - "game-changer"
+    - "revolutionary"
+    - "best-in-class"
+    - "synergy"
+    - "leverage"
+    - "circle back"
+    - "disrupt"
+
+# ─── Search Topics ────────────────────────────────────────────────────────────
+topics:
+  - id: api-cost-optimization
+    query: "API costs getting expensive scaling"
+    textMustMatch: ["API", "cost", "pricing", "expensive", "bill"]
+    replies:
+      - "We ran into the same thing around 10k RPM. Ended up batching calls and caching aggressively — cut costs ~60%. Happy to share the approach if useful: {{url}}"
+      - "API costs sneak up fast. We wrote up how we benchmark cost-per-request before committing to a provider: {{url}}"
+
+  - id: developer-experience
+    query: "developer experience bad documentation frustrating SDK"
+    textMustMatch: ["DX", "developer experience", "documentation", "SDK", "onboarding"]
+    replies:
+      - "Bad DX is such a silent churn driver. We obsess over this — here's how we think about it: {{url}}"
+      - "Docs are the product honestly. We rebuilt ours from scratch after watching devs struggle: {{url}}"
+
+  - id: rate-limiting-strategies
+    query: "rate limiting API throttling production issues"
+    textMustMatch: ["rate limit", "throttle", "429", "quota", "burst"]
+    replies:
+      - "Token bucket with a sliding window worked well for us at scale. Wrote up the tradeoffs: {{url}}"
+      - "We hit this hard before adding proper backpressure. Here's what we learned: {{url}}"
+
+  - id: scaling-infrastructure
+    query: "scaling backend servers traffic spike handling"
+    textMustMatch: ["scaling", "traffic", "servers", "autoscale", "load"]
+    replies:
+      - "Horizontal scaling sounds simple until you hit state. We documented our journey from 1 to 50 instances: {{url}}"
+      - "Traffic spikes are when you find out what's actually stateless. We wrote about prepping for these: {{url}}"
+
+  - id: devops-cicd-pipeline
+    query: "CI/CD pipeline slow deployment taking too long"
+    textMustMatch: ["CI", "CD", "pipeline", "deploy", "build", "slow"]
+    replies:
+      - "We got our deploy from 18min to 3min by parallelizing tests and caching layers. Details: {{url}}"
+      - "Slow CI kills velocity. Here's the exact config changes that worked for us: {{url}}"
+
+  - id: monitoring-observability
+    query: "monitoring observability alerting too many false alarms"
+    textMustMatch: ["monitoring", "alerts", "observability", "logs", "metrics"]
+    replies:
+      - "Alert fatigue is real. We moved to SLO-based alerting and it changed everything: {{url}}"
+      - "The trick was fewer dashboards with better signals. We wrote up our observability stack: {{url}}"
+
+  - id: saas-pricing-models
+    query: "SaaS pricing model per-seat vs usage-based"
+    textMustMatch: ["pricing", "per-seat", "usage-based", "tier", "plan"]
+    replies:
+      - "We tested both — usage-based converted better but per-seat had more predictable revenue. Our breakdown: {{url}}"
+      - "Pricing is the hardest product decision. Here's the framework we used: {{url}}"
+
+  - id: churn-reduction
+    query: "SaaS churn rate customers canceling reducing"
+    textMustMatch: ["churn", "cancel", "retention", "downgrade", "leaving"]
+    replies:
+      - "We cut churn 30% by fixing onboarding, not adding features. Counterintuitive but here's the data: {{url}}"
+      - "Most churn happens in the first 14 days. We rebuilt our activation flow — wrote it up: {{url}}"
+
+  - id: user-onboarding
+    query: "user onboarding flow activation getting users to first value"
+    textMustMatch: ["onboarding", "activation", "first value", "signup", "tutorial"]
+    replies:
+      - "Time-to-value is the metric that matters most. We got ours under 3 minutes: {{url}}"
+      - "Interactive onboarding > docs every time. Here's how we built ours: {{url}}"
+
+  - id: third-party-integrations
+    query: "building integrations API third party marketplace"
+    textMustMatch: ["integration", "API", "marketplace", "webhook", "connect"]
+    replies:
+      - "We prioritized integrations by customer request volume. The top 5 drove 80% of asks: {{url}}"
+      - "Webhook-first makes integrations way easier to maintain. Our approach: {{url}}"
+
+  - id: developer-productivity
+    query: "developer productivity engineering velocity slow sprint"
+    textMustMatch: ["productivity", "velocity", "sprint", "developer", "shipping"]
+    replies:
+      - "We stopped measuring story points and started measuring cycle time. Huge difference: {{url}}"
+      - "Dev productivity is about removing friction, not working harder. What worked for us: {{url}}"
+
+  - id: technical-debt
+    query: "technical debt refactoring legacy code migration"
+    textMustMatch: ["tech debt", "refactor", "legacy", "migration", "rewrite"]
+    replies:
+      - "We do 20% time for tech debt every sprint. Not sexy but it keeps the codebase healthy: {{url}}"
+      - "Strangler fig pattern saved us from a full rewrite. Wrote about the process: {{url}}"
+
+  - id: cloud-cost-management
+    query: "cloud costs AWS bill too high optimization"
+    textMustMatch: ["cloud", "AWS", "bill", "cost", "expensive", "GCP"]
+    replies:
+      - "Reserved instances + right-sizing dropped our AWS bill 45%. The specifics: {{url}}"
+      - "We built a cost anomaly detector that catches spikes within an hour. Open-sourced the approach: {{url}}"
+
+  - id: infrastructure-choices
+    query: "serverless vs containers Kubernetes overhead"
+    textMustMatch: ["serverless", "container", "Kubernetes", "K8s", "lambda"]
+    replies:
+      - "We moved from K8s to serverless for stateless stuff and it simplified ops massively: {{url}}"
+      - "Containers for long-running, serverless for event-driven. Here's our decision tree: {{url}}"
+
+  - id: startup-tech-stack
+    query: "tech stack choice startup what to use 2026"
+    textMustMatch: ["tech stack", "startup", "framework", "choose", "build"]
+    replies:
+      - "Boring tech wins. We went with proven tools and shipped faster than teams on cutting edge: {{url}}"
+      - "Your stack matters way less than people think. Here's what actually matters early on: {{url}}"
+
+# ─── Content Themes ───────────────────────────────────────────────────────────
+# 20 themes for original content posts (tweets, threads, LinkedIn posts)
+contentThemes:
+  - "The hidden cost of 'free tier' developer tools"
+  - "Why your API docs are your best salesperson"
+  - "Lessons learned from our worst production outage"
+  - "The 3 metrics every SaaS founder should track daily"
+  - "Why we chose boring technology (and shipped faster)"
+  - "How to price your SaaS without leaving money on the table"
+  - "The onboarding mistake that cost us 40% of signups"
+  - "Build vs buy: the framework we actually use"
+  - "Why developer experience is a competitive moat"
+  - "Our journey from 0 to 1000 API customers"
+  - "The CI/CD setup that lets us deploy 20x per day"
+  - "What we learned from reading every churn survey response"
+  - "Why usage-based pricing is eating SaaS"
+  - "The monitoring setup that actually lets our team sleep"
+  - "How we handle rate limiting without frustrating developers"
+  - "Our biggest mistake in building integrations"
+  - "The counterintuitive way to reduce support tickets"
+  - "Why your startup doesn't need Kubernetes yet"
+  - "How we cut cloud costs 50% without downgrading"
+  - "The technical debt payoff that 10x'd our shipping speed"
+
+# ─── Competitors ──────────────────────────────────────────────────────────────
+# Tools/companies in this space. Used for competitive monitoring.
+competitors:
+  - "Stripe"
+  - "Vercel"
+  - "AWS"
+  - "Supabase"
+  - "Railway"
+  - "Render"
+  - "PlanetScale"
+  - "Fly.io"
+  - "Netlify"
+
+# ─── Platform Settings ────────────────────────────────────────────────────────
+# Recommended platforms and subreddits for SaaS/dev tools
+platforms:
+  x:
+    enabled: true
+    maxPerDay: 10
+    maxPerRun: 3
+  reddit:
+    enabled: true
+    maxPerDay: 6
+    maxPerRun: 2
+    subreddits:
+      - "r/SaaS"
+      - "r/startups"
+      - "r/webdev"
+      - "r/devops"
+      - "r/programming"
+      - "r/ExperiencedDevs"
+  hackernews:
+    enabled: true
+    maxPerDay: 3
+    maxPerRun: 1
+  linkedin:
+    enabled: true
+    maxPerDay: 4
+    maxPerRun: 2
+  discord:
+    enabled: false
+    maxPerDay: 5
+    maxPerRun: 2
+    discordServers: []
+  producthunt:
+    enabled: true
+    maxPerDay: 2
+    maxPerRun: 1
