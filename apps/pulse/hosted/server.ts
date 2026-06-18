@@ -455,6 +455,9 @@ function pinPageHtml(
     : ''
   return `<!DOCTYPE html><html><head><title>Pulse — ${title}</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="shortcut icon" href="/favicon.ico">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="icon" type="image/png" href="/favicon.png" sizes="32x32">
 <style>*{margin:0;padding:0;box-sizing:border-box}body{background:#0d1117;color:#e6edf3;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;display:flex;justify-content:center;align-items:center;min-height:100vh}.card{background:#161b22;border:1px solid #30363d;border-radius:12px;padding:36px;max-width:380px;width:90%;text-align:center}h1{color:#58a6ff;font-size:1.4rem;margin-bottom:4px}p{color:#8b949e;font-size:0.88rem;margin-bottom:24px}button{width:100%;padding:12px;background:#238636;color:#fff;border:none;border-radius:6px;font-size:0.95rem;font-weight:600;cursor:pointer}button:hover{background:#2ea043}</style>
 </head><body><div class="card">
 <h1>${title}</h1>
@@ -4234,6 +4237,9 @@ function wrapLayout(
 
   return `<!DOCTYPE html><html style="background:#0d1117"><head><title>Pulse — ${title}</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="shortcut icon" href="/favicon.ico">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="icon" type="image/png" href="/favicon.png" sizes="32x32">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 html,body{background:#0d1117;color:#e6edf3;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
@@ -4473,6 +4479,19 @@ if (SPA_ENABLED) {
       return new Response(readFileSync(filePath), {
         headers: {
           'Content-Type': 'image/png',
+          'Cache-Control': 'public, max-age=86400',
+        },
+      })
+    }
+    return c.notFound()
+  })
+
+  app.get('/favicon.ico', (c) => {
+    const filePath = _join(SPA_DIR, 'favicon.ico')
+    if (_exists(filePath)) {
+      return new Response(readFileSync(filePath), {
+        headers: {
+          'Content-Type': 'image/x-icon',
           'Cache-Control': 'public, max-age=86400',
         },
       })
