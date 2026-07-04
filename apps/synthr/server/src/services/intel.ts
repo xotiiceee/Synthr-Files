@@ -44,23 +44,48 @@ type KevVulnerability = {
   notes?: string;
 };
 
-// Simple in-memory cache (smart for local dev - 5-15 min TTL)
+// Bounded LRU cache (prevents memory bloat from unique query keys)
+const CACHE_MAX_ENTRIES = 500;
 const cache = new Map<string, { data: any; expires: number }>();
 const CACHE_TTL_MS = 5 * 60 * 1000; // 5 min for dev (OSV/EPSS change slowly)
+const UPSTREAM_TIMEOUT_MS = 8000;
 
 function getCache<T>(key: string): T | null {
   const entry = cache.get(key);
-  if (entry && Date.now() < entry.expires) return entry.data as T;
-  if (entry) cache.delete(key);
-  return null;
+  if (!entry) return null;
+  if (Date.now() >= entry.expires) {
+    cache.delete(key);
+    return null;
+  }
+  // Move to end (most recently used) — Map iterates in insertion order.
+  cache.delete(key);
+  cache.set(key, entry);
+  return entry.data as T;
 }
 
 function setCache(key: string, data: any, ttl = CACHE_TTL_MS) {
+  if (cache.size >= CACHE_MAX_ENTRIES) {
+    // Evict oldest (first inserted) entry — simple LRU.
+    const oldest = cache.keys().next().value;
+    if (oldest !== undefined) cache.delete(oldest);
+  }
   cache.set(key, { data, expires: Date.now() + ttl });
 }
 
+// Error class for upstream failures — routes catch and return 503.
+export class UpstreamError extends Error {
+  readonly upstream: string;
+  readonly statusCode: number;
+  constructor(upstream: string, message: string, statusCode = 503) {
+    super(message);
+    this.name = 'UpstreamError';
+    this.upstream = upstream;
+    this.statusCode = statusCode;
+  }
+}
+
 // Ecosystem normalization for OSV (critical)
-function normalizeEcosystem(ecosystem?: string): string {
+export function normalizeEcosystem(ecosystem?: string): string {
   if (!ecosystem) return 'npm'; // Default common
   const map: Record<string, string> = {
     npm: 'npm',
@@ -97,14 +122,18 @@ async function fetchOSVBatch(queries: any[]) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ queries }),
+      signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS),
     });
-    if (!res.ok) throw new Error(`OSV error ${res.status}`);
+    if (!res.ok) throw new UpstreamError('OSV', `OSV responded ${res.status}`);
     const data = await res.json();
     setCache(cacheKey, data);
     return data;
   } catch (err) {
-    console.error('OSV fetch failed:', err);
-    return { results: queries.map(() => ({ vulns: [] })) }; // graceful
+    if (err instanceof UpstreamError) throw err;
+    if (err instanceof DOMException && err.name === 'TimeoutError') {
+      throw new UpstreamError('OSV', 'OSV request timed out');
+    }
+    throw new UpstreamError('OSV', `OSV fetch failed: ${err instanceof Error ? err.message : String(err)}`);
   }
 }
 
@@ -118,8 +147,8 @@ async function fetchEPSS(cves: string[]) {
 
   try {
     const url = `https://api.first.org/data/v1/epss?cve=${unique.join(',')}`;
-    const res = await fetch(url);
-    if (!res.ok) throw new Error(`EPSS error ${res.status}`);
+    const res = await fetch(url, { signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS) });
+    if (!res.ok) throw new UpstreamError('EPSS', `EPSS responded ${res.status}`);
     const json = await res.json();
     const map: Record<string, { epss: number; percentile: number }> = {};
     (json.data || []).forEach((row: any) => {
@@ -133,8 +162,11 @@ async function fetchEPSS(cves: string[]) {
     setCache(cacheKey, map, 24 * 60 * 60 * 1000); // 24h since daily
     return map;
   } catch (err) {
-    console.error('EPSS fetch failed:', err);
-    return {};
+    if (err instanceof UpstreamError) throw err;
+    if (err instanceof DOMException && err.name === 'TimeoutError') {
+      throw new UpstreamError('EPSS', 'EPSS request timed out');
+    }
+    throw new UpstreamError('EPSS', `EPSS fetch failed: ${err instanceof Error ? err.message : String(err)}`);
   }
 }
 
@@ -153,17 +185,21 @@ async function fetchCisaKevFeed(): Promise<KevVulnerability[]> {
 
   try {
     const res = await fetch(
-      'https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json'
+      'https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json',
+      { signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS) }
     );
-    if (!res.ok) throw new Error(`CISA KEV error ${res.status}`);
+    if (!res.ok) throw new UpstreamError('CISA KEV', `CISA KEV responded ${res.status}`);
     const json = await res.json();
     const vulnerabilities = (json.vulnerabilities || []) as KevVulnerability[];
     kevFeedCache = vulnerabilities;
     setCache(cacheKey, vulnerabilities, 6 * 60 * 60 * 1000); // 6h
     return vulnerabilities;
   } catch (err) {
-    console.error('CISA KEV feed fetch failed, using empty feed');
-    return [];
+    if (err instanceof UpstreamError) throw err;
+    if (err instanceof DOMException && err.name === 'TimeoutError') {
+      throw new UpstreamError('CISA KEV', 'CISA KEV request timed out');
+    }
+    throw new UpstreamError('CISA KEV', `CISA KEV fetch failed: ${err instanceof Error ? err.message : String(err)}`);
   }
 }
 
@@ -179,17 +215,68 @@ function buildSource(url: string, title: string, fetchedAt: string, type: Source
   return { url, title, fetchedAt, type };
 }
 
+// Curated high-risk package names for agentic stacks. Matched exactly (lowercased)
+// against the package name — not substring-matched against descriptions, which was
+// flagging everything containing "api", "fetch", or "token" as HIGH.
+const HIGH_RISK_PACKAGES = new Set([
+  // auth / identity
+  'jsonwebtoken', 'jose', 'passport', 'passport-jwt', 'next-auth', 'auth0',
+  'firebase-admin', 'cookie-parser', 'bcrypt', 'argon2',
+  // web frameworks / servers commonly used in tool calling
+  'express', 'fastapi', 'flask', 'django', 'next', 'gin-gonic/gin', 'echo',
+  'hono', '@hono/node-server', 'axios', 'got', 'node-fetch', 'requests',
+  'aiohttp', 'httpx',
+  // llm / agent sdk
+  'langchain', 'langchain-core', 'langchain-community', '@langchain/core',
+  'openai', 'anthropic', '@anthropic-ai/sdk', 'llamaindex', 'litellm',
+  'replicate', 'ai', '@ai-sdk/openai',
+  // data / persistence
+  'pg', 'mysql2', 'mongodb', 'mongoose', 'redis', 'ioredis', 'prisma',
+  '@prisma/client', 'knex', 'sequelize', 'sqlalchemy', 'psycopg2',
+  // tool / mcp
+  '@modelcontextprotocol/sdk', 'mcp', 'pydantic',
+]);
+
+const MEDIUM_RISK_PACKAGES = new Set([
+  'react', 'react-dom', 'vue', 'svelte', 'angular', '@angular/core',
+  'lodash', 'lodash-es', 'ramda', 'immutable', 'zod', 'joi', 'yup',
+  'sharp', 'multer', 'body-parser', 'helmet', 'cors',
+  'fastify', 'koa', 'koa-router', 'nestjs', '@nestjs/core',
+  'ws', 'socket.io', 'uWebSockets.js',
+]);
+
+// Keywords that elevate risk when found in the vulnerability summary (not package name).
+// These describe *what the vuln does*, not what the package does.
+const HIGH_RISK_SUMMARY_KEYWORDS = [
+  'rce', 'remote code execution', 'code execution', 'command injection',
+  'sql injection', 'ssrf', 'server-side request forgery',
+  'prototype pollution', 'path traversal', 'directory traversal',
+  'authentication bypass', 'auth bypass', 'privilege escalation',
+];
+
 // Smart agent surface detection (tailored for agentic builders)
-function computeAgentSurface(pkgName: string, summary: string, queryContext?: string): string {
-  const lower = (pkgName + ' ' + (summary || '') + ' ' + (queryContext || '')).toLowerCase();
-  const highRiskPatterns = [
-    'jwt', 'jsonwebtoken', 'auth', 'oauth', 'token', 'credential',
-    'express', 'fastapi', 'next', 'langchain', 'openai', 'llm',
-    'tool', 'agent', 'mcp', 'prompt', 'api', 'fetch', 'axios',
-    'database', 'postgres', 'sql', 'injection', 'xss'
-  ];
-  if (highRiskPatterns.some(p => lower.includes(p))) return 'HIGH';
-  if (lower.includes('web') || lower.includes('server') || lower.includes('framework')) return 'MEDIUM';
+export function computeAgentSurface(pkgName: string, summary: string, queryContext?: string): string {
+  const pkg = pkgName.toLowerCase().trim();
+  const summaryLower = (summary || '').toLowerCase();
+  const contextLower = (queryContext || '').toLowerCase();
+
+  // 1. Exact package-name match — strong signal.
+  if (HIGH_RISK_PACKAGES.has(pkg)) return 'HIGH';
+  if (MEDIUM_RISK_PACKAGES.has(pkg)) return 'MEDIUM';
+
+  // 2. Vulnerability summary describes a high-impact exploit type.
+  if (HIGH_RISK_SUMMARY_KEYWORDS.some(kw => summaryLower.includes(kw))) return 'HIGH';
+
+  // 3. Context field mentions agent/tool/auth/llm surfaces.
+  const contextKeywords = ['agent', 'harness', 'tool', 'auth', 'llm', 'mcp', 'sdk'];
+  const contextMatches = contextKeywords.filter(kw => contextLower.includes(kw)).length;
+  if (contextMatches >= 2) return 'HIGH';
+  if (contextMatches === 1) return 'MEDIUM';
+
+  // 4. Package name contains scoped indicators (weaker signal).
+  if (pkg.includes('auth') || pkg.includes('jwt') || pkg.includes('token')) return 'MEDIUM';
+  if (pkg.includes('sql') || pkg.includes('database') || pkg.includes('db-')) return 'MEDIUM';
+
   return 'LOW';
 }
 
@@ -203,12 +290,86 @@ function computeBreakingHarnessNotes(agentSurface: string, vulnerability: KevVul
   return 'Lower direct agent-harness relevance, but still worth checking if the affected product is in your runtime or infra.';
 }
 
-// Severity map from OSV
-function mapSeverity(vuln: any): string {
-  const cvss = vuln.database_specific?.cvss?.[0]?.baseScore || vuln.severity?.[0]?.score || 0;
-  if (cvss >= 9) return 'CRITICAL';
-  if (cvss >= 7) return 'HIGH';
-  if (cvss >= 4) return 'MEDIUM';
+// Parse a CVSS vector string (e.g. "CVSS:3.1/AV:N/AC:L/...") to extract the
+// base score. OSV's severity[].score field is a vector string, not a number.
+function parseCvssVector(vector: string): number {
+  if (!vector || typeof vector !== 'string') return 0;
+  // If it's already a number string, parse directly.
+  const asNum = parseFloat(vector);
+  if (!Number.isNaN(asNum) && asNum > 0 && asNum <= 10) return asNum;
+
+  // CVSS 3.x vector: extract metrics and compute base score.
+  // We use a simplified lookup — the full spec is complex, but OSV/GHSA
+  // typically also provides database_specific.severity as a label.
+  // This parser is a fallback for when only the vector is available.
+  const parts = vector.split('/');
+  const metrics: Record<string, string> = {};
+  for (const part of parts) {
+    const [k, v] = part.split(':');
+    if (k && v) metrics[k] = v;
+  }
+
+  // CVSS 3.1 base score computation (simplified — uses the standard table).
+  // See https://www.first.org/cvss/v3.1/specification for the full formula.
+  const av = metrics['AV']; // Attack Vector: N,A,L,P
+  const ac = metrics['AC']; // Attack Complexity: L,H
+  const pr = metrics['PR']; // Privileges Required: N,L,H
+  const ui = metrics['UI']; // User Interaction: N,R
+  const scope = metrics['S']; // Scope: U,C
+  const impact = metrics['I'] || metrics['C']; // Integrity/Confidentiality: H,L,N
+
+  if (!av) return 0;
+
+  // Simplified scoring — approximate but far better than always returning LOW.
+  // High-impact, network-reachable, no-priv, no-interaction → high score.
+  let score = 0;
+  if (av === 'N') score += 3; else if (av === 'A') score += 2.5; else score += 1.5;
+  if (ac === 'L') score += 2; else score += 0.5;
+  if (pr === 'N') score += 2; else if (pr === 'L') score += 1; else score += 0.5;
+  if (ui === 'N') score += 1; else score += 0.5;
+  if (impact === 'H') score += 3; else if (impact === 'L') score += 1.5; else score += 0.5;
+  if (scope === 'C') score += 1;
+
+  // Clamp to 0-10 range.
+  return Math.min(10, Math.round(score * 10) / 10);
+}
+
+// Severity map from OSV — handles the real OSV data shape correctly.
+export function mapSeverity(vuln: any): string {
+  // 1. database_specific.severity (GHSA-style: "CRITICAL", "HIGH", etc.)
+  const dbSeverity = vuln.database_specific?.severity;
+  if (typeof dbSeverity === 'string') {
+    const upper = dbSeverity.toUpperCase().trim();
+    if (upper === 'CRITICAL' || upper === 'HIGH' || upper === 'MEDIUM' || upper === 'LOW' || upper === 'NONE') {
+      return upper === 'NONE' ? 'LOW' : upper;
+    }
+  }
+
+  // 2. database_specific.cvss.baseScore (some advisories provide this directly)
+  const directScore = vuln.database_specific?.cvss?.baseScore;
+  if (typeof directScore === 'number' && directScore > 0) {
+    if (directScore >= 9) return 'CRITICAL';
+    if (directScore >= 7) return 'HIGH';
+    if (directScore >= 4) return 'MEDIUM';
+    return 'LOW';
+  }
+
+  // 3. severity[] array — OSV format: [{type: "CVSS_V3", score: "CVSS:3.1/..."}]
+  // The score field is a VECTOR STRING, not a number. Parse it.
+  if (Array.isArray(vuln.severity)) {
+    for (const sev of vuln.severity) {
+      if (sev?.score) {
+        const score = parseCvssVector(sev.score);
+        if (score > 0) {
+          if (score >= 9) return 'CRITICAL';
+          if (score >= 7) return 'HIGH';
+          if (score >= 4) return 'MEDIUM';
+          return 'LOW';
+        }
+      }
+    }
+  }
+
   return 'LOW';
 }
 
@@ -416,9 +577,17 @@ export async function searchVulns(input: z.infer<typeof schemas.VulnSearchReques
 
   if (input.cve) {
     try {
-      const res = await fetch(`https://api.osv.dev/v1/vulns/${input.cve}`);
+      const res = await fetch(`https://api.osv.dev/v1/vulns/${input.cve}`, {
+        signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS),
+      });
       if (res.ok) results.push(await res.json());
-    } catch (e) { /* graceful */ }
+    } catch (err) {
+      if (err instanceof UpstreamError) throw err;
+      if (err instanceof DOMException && err.name === 'TimeoutError') {
+        throw new UpstreamError('OSV', 'OSV vuln lookup timed out');
+      }
+      throw new UpstreamError('OSV', `OSV vuln lookup failed: ${err instanceof Error ? err.message : String(err)}`);
+    }
   } else if (input.query) {
     const pkgHint = input.query.split(/\s+/)[0];
     const batch = await fetchOSVBatch([{ package: { name: pkgHint, ecosystem: 'npm' } }]);
