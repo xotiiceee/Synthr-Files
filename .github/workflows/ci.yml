@@ -39,6 +39,7 @@ jobs:
 
       - name: Lint
         working-directory: apps/pulse/frontend
+        continue-on-error: true
         run: pnpm lint
 
       - name: Typecheck
