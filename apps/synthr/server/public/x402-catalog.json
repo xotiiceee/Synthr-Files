@@ -1,0 +1,49 @@
+{
+  "name": "Synthr Cyber",
+  "description": "Agent-native cybersecurity intelligence. Real OSV + EPSS + KEV data. Stack briefs, dep audits, advice. Prioritized for autonomous builders and harnesses.",
+  "version": "0.1.0",
+  "baseUrl": "http://localhost:3000",
+  "resources": [
+    {
+      "path": "/v1/cyber/stack-brief",
+      "method": "POST",
+      "price": "$0.005",
+      "description": "Prioritized security brief for your full tech stack with EPSS, KEV, agentSurface scoring.",
+      "mimeType": "application/json"
+    },
+    {
+      "path": "/v1/cyber/audit-deps",
+      "method": "POST",
+      "price": "$0.005",
+      "description": "Audit dependencies for vulns + malicious packages, enriched with EPSS."
+    },
+    {
+      "path": "/v1/cyber/advice",
+      "method": "POST",
+      "price": "$0.0075",
+      "description": "Grounded secure implementation advice for queries."
+    },
+    {
+      "path": "/v1/cyber/vulns",
+      "method": "POST",
+      "price": "$0.005",
+      "description": "Vuln search with EPSS/KEV filters."
+    },
+    {
+      "path": "/v1/cyber/breaking",
+      "method": "GET",
+      "price": "$0.005",
+      "description": "Recent actively exploited vulnerabilities from CISA KEV, enriched with EPSS and agent relevance notes."
+    },
+    {
+      "path": "/v1/x402/endpoint-check",
+      "method": "POST",
+      "price": "$0.005",
+      "description": "Trust check for x402 endpoints before an agent pays: discovery docs, health, payment challenge, trustScore, and recommendation.",
+      "mimeType": "application/json"
+    }
+  ],
+  "contact": "via x402scan",
+  "llmsTxt": "/llms.txt",
+  "openApi": "/openapi.json"
+}
