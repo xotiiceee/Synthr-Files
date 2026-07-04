@@ -62,3 +62,5 @@ See main plan: Expose the same tools via MCP server wrapper using x402 paid tool
 - Daily EPSS cron job.
 
 This scaffold + plan = 10/10 buildable by external AI or human.
+
+<!-- auto-push smoke test -->
