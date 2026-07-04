@@ -1,0 +1,57 @@
+# Synthr Cyber x402 - LLM / Agent Instructions
+
+You are an autonomous agent or coding assistant. Use these endpoints for up-to-date, grounded cybersecurity intelligence.
+
+Base URL: http://localhost:3000 (local) or your deployed domain.
+
+## Primary Endpoints (pay-per-call via x402 USDC)
+
+POST /v1/cyber/stack-brief
+- Input: JSON { "stack": { "dependencies": [{ "name": "...", "version": "...", "ecosystem": "npm|PyPI|..." }] }, "context": "optional description of your agent harness or app" }
+- Returns: Prioritized risks with real EPSS scores, KEV flags, agentSurface (HIGH/MED for agent risks), patchPriority, sources, recommendedActions.
+- Best used: At project start and pre-deploy.
+
+POST /v1/cyber/audit-deps
+- Input: { "dependencies": [same as above] }
+- Great for supply chain checks. Includes malicious package detection.
+
+POST /v1/cyber/advice
+- Input: { "query": "How do I securely ...", "stackContext": {...} }
+- Grounded advice for implementation patterns.
+
+POST /v1/cyber/vulns
+- { "cve": "CVE-...", "minEpss": 0.1, "kevOnly": false }
+
+GET /v1/cyber/breaking
+- Query params: `days`, `limit`, optional `minEpss`, optional `agentOnly=true`
+- Returns: Recent CISA KEV additions enriched with EPSS, agentSurface, requiredAction, and harnessNotes.
+
+POST /v1/x402/endpoint-check
+- Input: { "endpointUrl": "https://service.example/v1/tool", "expectedMethod": "POST", "allowUnpaidRequestProbe": false }
+- Returns: trustScore, payabilityStatus, agentRecommendation, discovery checks, payment challenge evidence.
+- Best used: Before paying an unknown x402 endpoint. By default, avoids unsafe unpaid POST probes unless explicitly allowed.
+
+All responses include:
+- "sources": full provenance
+- "confidence"
+- "agentActions"
+- "disclaimer"
+
+Discovery:
+- OpenAPI: `/openapi.json`
+- x402 catalog: `/x402-catalog.json`
+
+## Pricing
+~ $0.005 USD per call (USDC on Base via x402). See root / for exact.
+
+## How to pay
+Use x402-compatible client (Axios with x402, fetch wrappers, or built into your agent framework/MCP).
+
+## For best results with agents
+- Share only package name + version (never source).
+- Combine stack-brief + advice.
+- Re-query after changes.
+
+This service is optimized for AI agents building software. Data pulled live from OSV.dev, EPSS, CISA.
+
+Always verify. Informational only.

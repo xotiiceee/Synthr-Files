@@ -25,7 +25,7 @@ updates:
           - "*"
 
   - package-ecosystem: npm
-    directory: /apps/synthr
+    directory: /apps/synthr/server
     schedule:
       interval: weekly
     open-pull-requests-limit: 10

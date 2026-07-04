@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Synthr">
+  <rect width="64" height="64" rx="14" fill="#06080d"/>
+  <rect x="7" y="7" width="50" height="50" rx="11" fill="#0d131d" stroke="#49f2a1" stroke-opacity="0.55" stroke-width="2"/>
+  <text x="13" y="39" fill="#49f2a1" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="24" font-weight="800">S_</text>
+  <path d="M14 47h36" stroke="#5fd7ff" stroke-width="3" stroke-linecap="round" opacity="0.8"/>
+</svg>
