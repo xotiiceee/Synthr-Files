@@ -1,0 +1,71 @@
+# Local dev stack for Pulse (full split: Rust backend + Qdrant + Postgres for future persistence)
+# Run: docker compose up -d
+# Then (in separate terminals):
+#   cd backend && cargo run
+#   cd frontend && pnpm dev   (or use the updated launch scripts)
+#
+# For demo auth in frontend: visit with ?demo=true or the login will now work in dev mode.
+# Add OPENAI_API_KEY=... to backend .env for real embeddings in the intel gateway.
+# This enables cache hits + cost/savings visibility in /v1/x-intel/* 
+
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: pulse-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: pulse
+      POSTGRES_PASSWORD: pulse
+      POSTGRES_DB: pulse
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pulse"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: pulse-qdrant
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - qdrant_data:/qdrant/storage
+    environment:
+      - QDRANT__LOG_LEVEL=INFO
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6333/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  temporal:
+    image: temporalio/auto-setup:1.25
+    container_name: pulse-temporal
+    ports:
+      - "7233:7233"   # Frontend gRPC
+      - "8233:8233"   # UI
+    environment:
+      - DB=postgres
+      - DB_PORT=5432
+      - POSTGRES_USER=pulse
+      - POSTGRES_PWD=pulse
+      - POSTGRES_SEEDS=postgres
+      - TEMPORAL_ADDRESS=temporal:7233
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "tctl", "workflow", "list"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
+  qdrant_data:

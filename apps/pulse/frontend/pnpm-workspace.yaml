@@ -1,0 +1,4 @@
+allowBuilds:
+  '@clerk/shared': false
+minimumReleaseAgeExclude:
+  - '@clerk/shared@4.22.0'

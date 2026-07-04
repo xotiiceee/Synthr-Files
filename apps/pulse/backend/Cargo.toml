@@ -1,0 +1,76 @@
+[package]
+name = "pulse-backend"
+version = "0.1.0"
+edition = "2021"
+authors = ["Synthr"]
+license = "Proprietary"
+description = "Rust backend for Pulse (synthr-pulse) - production-grade X automation platform"
+
+[dependencies]
+# Web framework - modern, fast, ergonomic
+axum = { version = "0.7", features = ["macros", "json"] }
+tokio = { version = "1", features = ["full"] }
+tower = "0.4"
+tower-http = { version = "0.5", features = ["cors", "trace", "set-header", "compression-full", "fs"] }
+
+# Serialization
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# Async + utilities
+anyhow = "1"
+thiserror = "1"
+
+# Logging / observability (critical for production)
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
+
+# Config
+config = "0.14"
+dotenvy = "0.15"
+
+# Database (Postgres for production durability + scale)
+sqlx = { version = "0.8", features = ["runtime-tokio", "postgres", "uuid", "chrono", "json"] }
+
+# Time & IDs
+chrono = { version = "0.4", features = ["serde"] }
+uuid = { version = "1", features = ["v4", "serde"] }
+
+# Auth / security foundations (Clerk JWT verification planned)
+# jsonwebtoken = "9"   # add when Clerk integration is ready
+# reqwest = { version = "0.12", features = ["json"] }
+
+# Rate limiting & production concerns
+governor = "0.6"
+
+# For X API client later (async)
+# reqwest = { version = "0.12", features = ["json", "rustls-tls"] }
+
+# --- Pulse Intelligence Gateway deps (ClawAPIsXRouter + Qdrant semantic cache) ---
+# High-performance vector DB for semantic + metadata filtered lookups
+qdrant-client = "1"
+
+# HTTP client for ClawAPIs x402 (typed) + future embedder / fallbacks
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+
+# L1 exact-match + cost-weighted LFU cache (production hot path)
+moka = { version = "0.12", features = ["future"] }
+
+# Hashing for exact cache keys + content hashes
+sha2 = "0.10"
+hex = "0.4"
+
+# X402 client integration (production micropay for ClawAPIs / future outer)
+# x402-reqwest = { version = "0.1", optional = true }   # enable when ready
+# For now we build typed client with extension points for deferred + signing.
+
+# For trait objects with async fns (Embedder, XDataSource)
+async-trait = "0.1"
+jsonwebtoken = "9"
+
+[dev-dependencies]
+axum-test = "15"
+
+[[bin]]
+name = "pulse-backend"
+path = "src/main.rs"
