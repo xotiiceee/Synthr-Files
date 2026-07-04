@@ -101,8 +101,9 @@ describe('computeAgentSurface', () => {
   });
 
   it('returns MEDIUM when context mentions one agent-surface keyword', () => {
-    expect(computeAgentSurface('some-pkg', '', 'agent harness')).toBe('MEDIUM');
+    expect(computeAgentSurface('some-pkg', '', 'agent setup')).toBe('MEDIUM');
     expect(computeAgentSurface('some-pkg', '', 'auth flow')).toBe('MEDIUM');
+    expect(computeAgentSurface('some-pkg', '', 'using sdk')).toBe('MEDIUM');
   });
 
   it('returns LOW for unrelated packages with benign summaries', () => {
