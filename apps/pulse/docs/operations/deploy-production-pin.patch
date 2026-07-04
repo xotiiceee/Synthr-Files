@@ -1,0 +1,32 @@
+--- a/.github/workflows/deploy-production.yml
++++ b/.github/workflows/deploy-production.yml
+@@ -2,11 +2,6 @@
+ 
+ on:
+   workflow_dispatch:
+-    inputs:
+-      branch:
+-        description: Branch to deploy
+-        required: true
+-        default: master
+ 
+ permissions:
+   contents: read
+@@ -21,8 +16,6 @@
+     environment: production
+     steps:
+       - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+-        with:
+-          ref: ${{ inputs.branch }}
+ 
+       - name: Join tailnet
+         uses: tailscale/github-action@306e68a486fd2350f2bfc3b19fcd143891a4a2d8 # v4
+@@ -38,7 +31,7 @@
+         run: |
+           test -n "$TAILSCALE_HOST"
+           ssh -o StrictHostKeyChecking=accept-new "${DEPLOY_USER}@${TAILSCALE_HOST}" \
+-            "cd /home/${DEPLOY_USER}/pulse && GIT_BRANCH='${{ inputs.branch }}' AUTO_SWITCH_BRANCH=1 bash scripts/deploy.sh"
++            "cd /home/${DEPLOY_USER}/pulse && GIT_BRANCH=master bash scripts/deploy.sh"
+ 
+       - name: Verify deploy info
+         env:
