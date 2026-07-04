@@ -8,7 +8,7 @@ on:
 
 permissions:
   pull-requests: write
-  contents: read
+  contents: write
 
 concurrency:
   group: auto-pr-${{ github.ref }}
@@ -22,7 +22,7 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: Open PR with automerge label (if none exists)
+      - name: Open PR, label it, and enable auto-merge
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -35,23 +35,32 @@ jobs:
             BASE="main"
           fi
 
-          # If an open PR already exists for this branch, skip.
+          # Find an existing open PR for this branch (if any).
           EXISTING=$(gh pr list --head "$BRANCH" --state open --json number --jq '.[0].number' 2>/dev/null || true)
+
           if [ -n "$EXISTING" ]; then
-            echo "Open PR #$EXISTING already exists for $BRANCH — skipping."
-            exit 0
+            echo "Open PR #$EXISTING already exists for $BRANCH — ensuring label + auto-merge."
+            PR_URL="https://github.com/${{ github.repository }}/pull/$EXISTING"
+          else
+            echo "Opening PR for $BRANCH -> $BASE..."
+            PR_URL=$(gh pr create \
+              --base "$BASE" \
+              --head "$BRANCH" \
+              --title "Auto-PR: $BRANCH" \
+              --body "Automatically opened by the **Auto-Open PR** workflow for branch \`$BRANCH\`.
+
+          CI will run; auto-merge (squash) is enabled below. The PR merges into \`$BASE\` once \`CI / pulse-checks\` and \`CI / synthr-checks\` are green.")
           fi
 
-          # Compose a title from the branch name.
-          TITLE="Auto-PR: $BRANCH"
+          # Add the automerge label (idempotent; ignore if already present).
+          gh pr edit "$PR_URL" --add-label automerge 2>/dev/null || \
+            echo "Label add skipped (may already be present or label missing)."
 
-          gh pr create \
-            --base "$BASE" \
-            --head "$BRANCH" \
-            --title "$TITLE" \
-            --body "Automatically opened by the **Auto-Open PR** workflow for branch \`$BRANCH\`.
+          # Enable GitHub's native auto-merge (squash) on the PR.
+          # This makes GitHub hold the merge until required status checks pass,
+          # then squash-merge automatically. Works even though events raised by
+          # GITHUB_TOKEN don't trigger other workflows — we do it all here.
+          gh pr merge "$PR_URL" --squash --auto 2>/dev/null || \
+            echo "Auto-merge enable skipped (may already be enabled or checks pending)."
 
-          CI will run; automerge is enabled via the \`automerge\` label and the existing \`auto-merge.yml\` workflow. The PR will squash-merge into \`$BASE\` once \`CI / pulse-checks\` and \`CI / synthr-checks\` are green." \
-            --label automerge
-
-          echo "PR opened for $BRANCH."
+          echo "Done: $PR_URL"
