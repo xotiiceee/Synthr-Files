@@ -9,10 +9,6 @@ healthRoutes.get('/', (c) => {
     version: '0.1.0',
     uptime: process.uptime(),
     timestamp: new Date().toISOString(),
-    x402: {
-      facilitator: process.env.FACILITATOR_URL,
-      network: process.env.NETWORK,
-    },
     note: 'Free health endpoint. Paid cyber intelligence at /v1/cyber/*',
   });
 });
