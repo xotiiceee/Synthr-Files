@@ -1,0 +1,57 @@
+name: Auto-Open PR
+
+on:
+  push:
+    branches-ignore:
+      - master
+      - main
+
+permissions:
+  pull-requests: write
+  contents: read
+
+concurrency:
+  group: auto-pr-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  open-pr:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Open PR with automerge label (if none exists)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -e
+          BRANCH="${{ github.ref_name }}"
+
+          # Determine base branch (master or main).
+          BASE="master"
+          if ! git ls-remote --exit-code --heads origin "$BASE" >/dev/null 2>&1; then
+            BASE="main"
+          fi
+
+          # If an open PR already exists for this branch, skip.
+          EXISTING=$(gh pr list --head "$BRANCH" --state open --json number --jq '.[0].number' 2>/dev/null || true)
+          if [ -n "$EXISTING" ]; then
+            echo "Open PR #$EXISTING already exists for $BRANCH — skipping."
+            exit 0
+          fi
+
+          # Compose a title from the branch name.
+          TITLE="Auto-PR: $BRANCH"
+
+          gh pr create \
+            --base "$BASE" \
+            --head "$BRANCH" \
+            --title "$TITLE" \
+            --body "Automatically opened by the **Auto-Open PR** workflow for branch \`$BRANCH\`.
+
+          CI will run; automerge is enabled via the \`automerge\` label and the existing \`auto-merge.yml\` workflow. The PR will squash-merge into \`$BASE\` once \`CI / pulse-checks\` and \`CI / synthr-checks\` are green." \
+            --label automerge
+
+          echo "PR opened for $BRANCH."
