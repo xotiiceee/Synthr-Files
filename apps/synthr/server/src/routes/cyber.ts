@@ -23,7 +23,7 @@ cyberRoutes.post(
       return c.json(result, 200);
     } catch (err) {
       if (err instanceof UpstreamError) {
-        return c.json({ error: 'upstream_unavailable', upstream: err.upstream, message: err.message }, err.statusCode);
+        return c.json({ error: 'upstream_unavailable', upstream: err.upstream, message: err.message }, 503);
       }
       throw err;
     }
@@ -41,7 +41,7 @@ cyberRoutes.post(
       return c.json(result, 200);
     } catch (err) {
       if (err instanceof UpstreamError) {
-        return c.json({ error: 'upstream_unavailable', upstream: err.upstream, message: err.message }, err.statusCode);
+        return c.json({ error: 'upstream_unavailable', upstream: err.upstream, message: err.message }, 503);
       }
       throw err;
     }
@@ -59,7 +59,7 @@ cyberRoutes.post(
       return c.json(result, 200);
     } catch (err) {
       if (err instanceof UpstreamError) {
-        return c.json({ error: 'upstream_unavailable', upstream: err.upstream, message: err.message }, err.statusCode);
+        return c.json({ error: 'upstream_unavailable', upstream: err.upstream, message: err.message }, 503);
       }
       throw err;
     }
@@ -77,7 +77,7 @@ cyberRoutes.post(
       return c.json(result, 200);
     } catch (err) {
       if (err instanceof UpstreamError) {
-        return c.json({ error: 'upstream_unavailable', upstream: err.upstream, message: err.message }, err.statusCode);
+        return c.json({ error: 'upstream_unavailable', upstream: err.upstream, message: err.message }, 503);
       }
       throw err;
     }
@@ -95,7 +95,7 @@ cyberRoutes.get(
       return c.json(result, 200);
     } catch (err) {
       if (err instanceof UpstreamError) {
-        return c.json({ error: 'upstream_unavailable', upstream: err.upstream, message: err.message }, err.statusCode);
+        return c.json({ error: 'upstream_unavailable', upstream: err.upstream, message: err.message }, 503);
       }
       throw err;
     }
