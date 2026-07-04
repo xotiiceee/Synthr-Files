@@ -1,8 +1,9 @@
 name: Auto Squash-Merge
 
 on:
-  pull_request_target:
-    types: [labeled, synchronize]
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [main]
 
 permissions:
   contents: write
@@ -10,11 +11,13 @@ permissions:
 
 jobs:
   enable-auto-merge:
-    if: contains(github.event.pull_request.labels.*.name, 'automerge')
     runs-on: ubuntu-latest
     steps:
       - name: Enable auto-merge (squash)
-        run: gh pr merge "$PR_URL" --squash --auto
+        run: |
+          # Enable auto-merge so GitHub merges automatically once all
+          # required branch-protection checks are green.
+          gh pr merge "$PR_URL" --squash --auto --delete-branch || true
         env:
           GH_TOKEN: ${{ github.token }}
           PR_URL: ${{ github.event.pull_request.html_url }}

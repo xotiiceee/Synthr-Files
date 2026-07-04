@@ -1,5 +1,7 @@
 # Pulse - CLAUDE.md
 
-Claude compatibility shim.
+See AGENTS.md and especially the detailed PULSE_ACTUALIZATION_PLAN.md (execute in order).
 
-See `AGENTS.md` for the current repo instructions and workflow rules.
+Current focus: Phase 0 stabilization — make frontend + Rust backend integrated and runnable with demo data. Then modern foundations (Next.js, Postgres/pgvector, Temporal).
+
+Do not edit archived legacy code directly.

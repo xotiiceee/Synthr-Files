@@ -12,3 +12,22 @@ hosted/deploy-meta.json
 
 # DATA Tools - All sensitive data in one place (added by DATA Tools)
 .replit-tools/
+
+# Build artifacts
+backend/target/
+backend/static/
+frontend/dist/
+.pnpm-store/
+deploy/
+*.tgz
+*.tar.gz
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# Backups
+src-backup-*/
