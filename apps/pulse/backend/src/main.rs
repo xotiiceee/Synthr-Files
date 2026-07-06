@@ -3811,15 +3811,18 @@ async fn x_post_tweet(State(state): State<AppState>, headers: HeaderMap, Json(pa
             }
         } else { return (StatusCode::BAD_REQUEST, Json(serde_json::json!({"error": "Unsupported image URL"}))).into_response(); };
 
-        let media_id = if let (Some(_ats), Ok(ck), Ok(cs)) =
-            (token.access_token_secret.as_ref(), std::env::var("X_API_KEY"), std::env::var("X_API_KEY_SECRET")) {
-            match x_media_upload(&ck, &cs, &token.access_token, token.access_token_secret.as_ref().unwrap(), image_bytes, &mime_type).await {
-                Ok(mid) => Some(mid),
-                Err(e) => { warn!(target:"pulse_backend", error=%e, "oauth1 media upload fail"); None }
+        let media_id = {
+            let ck = std::env::var("X_API_KEY").unwrap_or_default();
+            let cs = std::env::var("X_API_KEY_SECRET").unwrap_or_default();
+            if !ck.is_empty() && !cs.is_empty() {
+                match x_media_upload(&ck, &cs, &token.access_token, "", image_bytes, &mime_type).await {
+                    Ok(mid) => Some(mid),
+                    Err(e) => { warn!(target:"pulse_backend", error=%e, "oauth1 media upload fail"); None }
+                }
+            } else {
+                warn!(target:"pulse_backend", "X_API_KEY not set, skipping media upload");
+                None
             }
-        } else {
-            warn!(target:"pulse_backend", "no oauth1 credentials, skipping media upload");
-            None
         };
 
         let mut tb = serde_json::json!({"text": payload.text});
