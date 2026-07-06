@@ -262,6 +262,7 @@ pub async fn x_tweet_with_media(
     media_id: Option<&str>,
 ) -> anyhow::Result<String> {
     let url = "https://api.twitter.com/2/tweets";
+    let auth = oauth1_auth_header(consumer_key, access_token, consumer_secret, access_secret, "POST", url, &[]);
     let tb = if let Some(mid) = media_id {
         serde_json::json!({"text": text, "media": {"media_ids": [mid]}})
     } else {
@@ -269,7 +270,8 @@ pub async fn x_tweet_with_media(
     };
     let client = Client::new();
     let res = client.post(url)
-        .header("Authorization", format!("Bearer {}", access_token))
+        .header("Authorization", &auth)
+        .header("Content-Type", "application/json")
         .json(&tb).send().await?;
     let status = res.status();
     let body = res.text().await?;
