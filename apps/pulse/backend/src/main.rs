@@ -46,7 +46,7 @@ mod x_intel;
 use x_intel::{build_default_gateway, KnowledgeItem, PulseXDataGateway, XQuery};
 
 mod x_auth;
-use x_auth::{XAuthStore, XUserToken, generate_pkce, x_auth_url, exchange_code_for_token, x_media_upload};
+use x_auth::{XAuthStore, XUserToken, oauth1_request_token, oauth1_authorize_url, oauth1_access_token, x_media_upload};
 
 mod persona;
 use persona::{Persona, PersonaStore, PersonaExemplar, PersonaEvolution, analyze_profile_for_persona, merge_persona, PersonaAnalysis};
@@ -3606,7 +3606,7 @@ async fn load_state_from_db(pool: &sqlx::PgPool, state: &AppState) {
                     x_user_id: td.get("x_user_id").and_then(|v| v.as_str()).unwrap_or("").to_string(),
                     x_handle: td.get("x_handle").and_then(|v| v.as_str()).unwrap_or("").to_string(),
                     access_token: td.get("access_token").and_then(|v| v.as_str()).unwrap_or("").to_string(),
-                    access_token_secret: td.get("access_token_secret").and_then(|v| v.as_str()).map(|s| s.to_string()),
+                    access_token_secret: td.get("access_token_secret").and_then(|v| v.as_str()).unwrap_or("").to_string(),
                     refresh_token: td.get("refresh_token").and_then(|v| v.as_str()).map(|s| s.to_string()),
                     expires_at: td.get("expires_at").and_then(|v| v.as_str()).map(|s| s.to_string()),
                 }).await;
@@ -3749,25 +3749,31 @@ async fn redeem_discount_code(State(state): State<AppState>, headers: HeaderMap,
 
 async fn x_auth_connect(State(state): State<AppState>, headers: HeaderMap) -> impl IntoResponse {
     let auth = match require_auth(&headers).await { Ok(a) => a, Err(err) => return err.into_response() };
-    let client_id = std::env::var("X_CLIENT_ID").unwrap_or_default();
-    if client_id.is_empty() { return (StatusCode::SERVICE_UNAVAILABLE, Json(serde_json::json!({"error": "X not configured"}))).into_response(); }
-    let state_val = uuid::Uuid::new_v4().to_string();
-    let (verifier, challenge) = generate_pkce().await;
-    state.x_auth.store_state(&state_val, &auth.user_id, &verifier, "/settings").await;
+    let ck = std::env::var("X_API_KEY").unwrap_or_default();
+    let cs = std::env::var("X_API_KEY_SECRET").unwrap_or_default();
+    if ck.is_empty() || cs.is_empty() { return (StatusCode::SERVICE_UNAVAILABLE, Json(serde_json::json!({"error": "X API keys not configured"}))).into_response(); }
     let redirect_uri = std::env::var("X_REDIRECT_URI").unwrap_or_else(|_| "https://pulse.synthr.online/auth/x/callback".to_string());
-    Redirect::to(&x_auth_url(&client_id, &redirect_uri, &state_val, &challenge)).into_response()
+    match oauth1_request_token(&ck, &cs, &redirect_uri).await {
+        Ok((request_token, request_secret)) => {
+            state.x_auth.store_oauth_state(&request_token, &auth.user_id, &request_secret).await;
+            Redirect::to(&oauth1_authorize_url(&request_token)).into_response()
+        }
+        Err(e) => {
+            warn!(target:"pulse_backend", error=%e, "x_auth_connect oauth1 failed");
+            (StatusCode::BAD_GATEWAY, Json(serde_json::json!({"error": format!("X auth failed: {e}")}))).into_response()
+        }
+    }
 }
 
 async fn x_auth_callback(State(state): State<AppState>, Query(params): Query<HashMap<String, String>>) -> impl IntoResponse {
-    let code = match params.get("code") { Some(c) => c.clone(), None => return (StatusCode::BAD_REQUEST, "Missing code").into_response() };
-    let state_val = match params.get("state") { Some(s) => s.clone(), None => return (StatusCode::BAD_REQUEST, "Missing state").into_response() };
-    let (user_id, verifier, _) = match state.x_auth.take_state(&state_val).await { Some(d) => d, None => return (StatusCode::BAD_REQUEST, "Invalid state").into_response() };
-    let cid = std::env::var("X_CLIENT_ID").unwrap_or_default();
-    let secret = std::env::var("X_CLIENT_SECRET").unwrap_or_default();
-    let redirect_uri = std::env::var("X_REDIRECT_URI").unwrap_or_else(|_| "https://pulse.synthr.online/auth/x/callback".to_string());
-    match exchange_code_for_token(&cid, &secret, &redirect_uri, &code, &verifier).await {
-        Ok((access_token, refresh_token, x_user_id, handle)) => {
-            state.x_auth.store_token(XUserToken { user_id: user_id.clone(), x_user_id, x_handle: handle.clone(), access_token, access_token_secret: None, refresh_token, expires_at: None }).await;
+    let oauth_token = match params.get("oauth_token") { Some(t) => t.clone(), None => return (StatusCode::BAD_REQUEST, "Missing oauth_token").into_response() };
+    let oauth_verifier = match params.get("oauth_verifier") { Some(v) => v.clone(), None => return (StatusCode::BAD_REQUEST, "Missing oauth_verifier").into_response() };
+    let (user_id, request_secret) = match state.x_auth.take_oauth_state(&oauth_token).await { Some(d) => d, None => return (StatusCode::BAD_REQUEST, "Invalid state").into_response() };
+    let ck = std::env::var("X_API_KEY").unwrap_or_default();
+    let cs = std::env::var("X_API_KEY_SECRET").unwrap_or_default();
+    match oauth1_access_token(&ck, &cs, &oauth_token, &request_secret, &oauth_verifier).await {
+        Ok((access_token, access_secret, x_user_id, handle)) => {
+            state.x_auth.store_token(XUserToken { user_id: user_id.clone(), x_user_id, x_handle: handle.clone(), access_token, access_token_secret: access_secret, refresh_token: None, expires_at: None }).await;
             save_state_to_db(&state.pool, &state).await;
             Redirect::to(&format!("/settings?x_connected={}", handle.trim_start_matches('@'))).into_response()
         }
@@ -3814,13 +3820,13 @@ async fn x_post_tweet(State(state): State<AppState>, headers: HeaderMap, Json(pa
         let media_id = {
             let ck = std::env::var("X_API_KEY").unwrap_or_default();
             let cs = std::env::var("X_API_KEY_SECRET").unwrap_or_default();
-            if !ck.is_empty() && !cs.is_empty() {
-                match x_media_upload(&ck, &cs, &token.access_token, "", image_bytes, &mime_type).await {
+            if !ck.is_empty() && !cs.is_empty() && !token.access_token_secret.is_empty() {
+                match x_media_upload(&ck, &cs, &token.access_token, &token.access_token_secret, image_bytes, &mime_type).await {
                     Ok(mid) => Some(mid),
-                    Err(e) => { warn!(target:"pulse_backend", error=%e, "oauth1 media upload fail"); None }
+                    Err(e) => { warn!(target:"pulse_backend", error=%e, "media upload fail"); None }
                 }
             } else {
-                warn!(target:"pulse_backend", "X_API_KEY not set, skipping media upload");
+                warn!(target:"pulse_backend", "missing oauth1 credentials, skipping media upload");
                 None
             }
         };
