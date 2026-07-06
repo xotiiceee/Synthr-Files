@@ -46,7 +46,7 @@ mod x_intel;
 use x_intel::{build_default_gateway, KnowledgeItem, PulseXDataGateway, XQuery};
 
 mod x_auth;
-use x_auth::{XAuthStore, XUserToken, oauth1_request_token, oauth1_authorize_url, oauth1_access_token, x_media_upload};
+use x_auth::{XAuthStore, XUserToken, oauth1_request_token, oauth1_authorize_url, oauth1_access_token, x_media_upload, x_tweet_with_media};
 
 mod persona;
 use persona::{Persona, PersonaStore, PersonaExemplar, PersonaEvolution, analyze_profile_for_persona, merge_persona, PersonaAnalysis};
@@ -3833,37 +3833,24 @@ async fn x_post_tweet(State(state): State<AppState>, headers: HeaderMap, Json(pa
 
         let mut tb = serde_json::json!({"text": payload.text});
         if let Some(ref mid) = media_id { tb["media"] = serde_json::json!({"media_ids": [mid]}); }
-        match client.post("https://api.twitter.com/2/tweets")
-            .header("Authorization", format!("Bearer {}", token.access_token))
-            .json(&tb).send().await {
-            Ok(resp) => {
-                if !resp.status().is_success() {
-                    let b: serde_json::Value = resp.json().await.unwrap_or_default();
-                    return (StatusCode::BAD_GATEWAY, Json(serde_json::json!({"error": format!("X error: {}", b["detail"].as_str().unwrap_or("unknown"))}))).into_response();
-                }
-                let r: serde_json::Value = resp.json().await.unwrap_or_default();
-                let tid = r["data"]["id"].as_str().unwrap_or("");
+        let ck = std::env::var("X_API_KEY").unwrap_or_default();
+        let cs = std::env::var("X_API_KEY_SECRET").unwrap_or_default();
+        let xt_res = x_tweet_with_media(&ck, &cs, &token.access_token, &token.access_token_secret, &payload.text, media_id.as_deref()).await;
+        match xt_res {
+            Ok(tid) => {
                 let mut result = serde_json::json!({"ok": true, "tweetId": tid, "url": format!("https://x.com/i/status/{tid}")});
                 if media_id.is_none() {
                     result["mediaError"] = serde_json::json!("Image could not be attached. Reconnect X in Settings to update your permissions, then try again.");
                 }
                 Json(result).into_response()
             }
-            Err(e) => (StatusCode::BAD_GATEWAY, Json(serde_json::json!({"error": e.to_string()}))).into_response(),
+            Err(e) => (StatusCode::BAD_GATEWAY, Json(serde_json::json!({"error": format!("X error: {e}")}))).into_response(),
         }
     } else {
-        match client.post("https://api.twitter.com/2/tweets")
-            .header("Authorization", format!("Bearer {}", token.access_token))
-            .json(&serde_json::json!({"text": payload.text})).send().await {
-            Ok(resp) => {
-                if !resp.status().is_success() {
-                    let b: serde_json::Value = resp.json().await.unwrap_or_default();
-                    return (StatusCode::BAD_GATEWAY, Json(serde_json::json!({"error": format!("X error: {}", b["detail"].as_str().unwrap_or("unknown"))}))).into_response();
-                }
-                let r: serde_json::Value = resp.json().await.unwrap_or_default();
-                let tid = r["data"]["id"].as_str().unwrap_or("");
-                Json(serde_json::json!({"ok": true, "tweetId": tid, "url": format!("https://x.com/i/status/{tid}")})).into_response()
-            }
+        let ck = std::env::var("X_API_KEY").unwrap_or_default();
+        let cs = std::env::var("X_API_KEY_SECRET").unwrap_or_default();
+        match x_tweet_with_media(&ck, &cs, &token.access_token, &token.access_token_secret, &payload.text, None).await {
+            Ok(tid) => Json(serde_json::json!({"ok": true, "tweetId": tid, "url": format!("https://x.com/i/status/{tid}")})).into_response(),
             Err(e) => (StatusCode::BAD_GATEWAY, Json(serde_json::json!({"error": e.to_string()}))).into_response(),
         }
     }
