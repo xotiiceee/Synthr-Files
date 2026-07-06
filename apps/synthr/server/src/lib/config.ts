@@ -16,9 +16,6 @@ const envSchema = z.object({
   RATE_LIMIT_MAX_REQUESTS: z.coerce.number().int().positive().default(60),
   LLM_API_KEY: z.string().optional(),
   LLM_MODEL: z.string().optional(),
-  GITHUB_URL: z.string().url().optional(),
-  STATUS_PAGE_URL: z.string().url().optional(),
-  CONTACT_EMAIL: z.string().email().optional(),
 });
 
 const env = envSchema.parse(process.env);
@@ -38,20 +35,7 @@ export const config = {
     apiKey: env.LLM_API_KEY,
     model: env.LLM_MODEL || 'gpt-4o-mini',
   },
-  githubUrl: env.GITHUB_URL,
-  statusPageUrl: env.STATUS_PAGE_URL,
-  contactEmail: env.CONTACT_EMAIL,
 };
-
-const NETWORK_LABELS: Record<string, string> = {
-  'eip155:84532': 'Base Sepolia testnet',
-  'eip155:8453': 'Base',
-  'eip155:1': 'Ethereum',
-};
-
-export function networkLabel(network: string): string {
-  return NETWORK_LABELS[network] || network;
-}
 
 export function isPlaceholderPayTo(address: string) {
   return address.toLowerCase() === PLACEHOLDER_PAY_TO;

@@ -58,15 +58,6 @@ export const BreakingRequest = z.object({
   agentOnly: queryBoolean.default(false),
 });
 
-export const X402EndpointCheckRequest = z.object({
-  endpointUrl: z.string().url(),
-  expectedMethod: z.enum(['GET', 'POST', 'PUT', 'PATCH', 'DELETE']).default('POST'),
-  catalogUrl: z.string().url().optional(),
-  openApiUrl: z.string().url().optional(),
-  llmsTxtUrl: z.string().url().optional(),
-  allowUnpaidRequestProbe: z.boolean().default(false),
-});
-
 export const VulnResponse = z.object({
   queryId: z.string(),
   asOf: z.string(),
@@ -98,7 +89,6 @@ export const schemas = {
   AdviceRequest,
   VulnSearchRequest,
   BreakingRequest,
-  X402EndpointCheckRequest,
   SourceRef,
   CyberResponseBase,
 };

@@ -14,8 +14,6 @@
 
 See root [README.md](../README.md) and [docs/SYNTHR-TOOLS-VISION-AND-PLAN.md](./SYNTHR-TOOLS-VISION-AND-PLAN.md) for vision and current local state.
 
-Related product expansion note: [Zauth-style integration notes](./ZAUTH-STYLE-INTEGRATION.md), covering repo trust briefs, x402 endpoint checks, surface scans, and usage metrics.
-
 ---
 
 ## Current State Summary (What Is Actualized)

@@ -26,11 +26,6 @@ GET /v1/cyber/breaking
 - Query params: `days`, `limit`, optional `minEpss`, optional `agentOnly=true`
 - Returns: Recent CISA KEV additions enriched with EPSS, agentSurface, requiredAction, and harnessNotes.
 
-POST /v1/x402/endpoint-check
-- Input: { "endpointUrl": "https://service.example/v1/tool", "expectedMethod": "POST", "allowUnpaidRequestProbe": false }
-- Returns: trustScore, payabilityStatus, agentRecommendation, discovery checks, payment challenge evidence.
-- Best used: Before paying an unknown x402 endpoint. By default, avoids unsafe unpaid POST probes unless explicitly allowed.
-
 All responses include:
 - "sources": full provenance
 - "confidence"

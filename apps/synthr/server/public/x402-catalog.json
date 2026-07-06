@@ -34,13 +34,6 @@
       "method": "GET",
       "price": "$0.005",
       "description": "Recent actively exploited vulnerabilities from CISA KEV, enriched with EPSS and agent relevance notes."
-    },
-    {
-      "path": "/v1/x402/endpoint-check",
-      "method": "POST",
-      "price": "$0.005",
-      "description": "Trust check for x402 endpoints before an agent pays: discovery docs, health, payment challenge, trustScore, and recommendation.",
-      "mimeType": "application/json"
     }
   ],
   "contact": "via x402scan",

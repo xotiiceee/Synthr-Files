@@ -115,18 +115,6 @@ export function buildOpenApiSpec() {
           },
         },
       },
-      '/v1/x402/endpoint-check': {
-        post: {
-          summary: 'Check x402 endpoint trust',
-          description:
-            'Paid endpoint. Checks discovery metadata, basic reachability, and unpaid payment challenge behavior before an agent spends on an x402 endpoint.',
-          responses: {
-            '200': { description: 'Structured x402 endpoint trust check' },
-            '402': { description: 'Payment required' },
-            '429': { description: 'Rate limited' },
-          },
-        },
-      },
     },
   };
 }

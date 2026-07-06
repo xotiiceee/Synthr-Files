@@ -10,9 +10,8 @@ import { readFile } from 'fs/promises';
 import { join } from 'path';
 
 import { cyberRoutes } from './routes/cyber';
-import { x402Routes } from './routes/x402';
 import { healthRoutes } from './routes/health';
-import { config, isPlaceholderPayTo, networkLabel } from './lib/config';
+import { config, isPlaceholderPayTo } from './lib/config';
 import { createRateLimitMiddleware } from './lib/rate-limit';
 import { buildOpenApiSpec } from './lib/openapi';
 import { renderHomepage } from './lib/homepage';
@@ -122,30 +121,14 @@ const cyberPaymentConfig = {
     description: "Recent actively exploited vulnerabilities from CISA KEV, enriched with EPSS and agent relevance notes.",
     mimeType: "application/json",
   },
-  "POST /v1/x402/endpoint-check": {
-    resource: `${publicBaseUrl}/v1/x402/endpoint-check`,
-    accepts: [
-      {
-        scheme: "exact" as const,
-        price: `$${config.defaultPriceUsd}`,
-        network: config.network,
-        payTo,
-      },
-    ],
-    description: "Check whether a discovered x402 endpoint appears documented, reachable, and safe for an agent to pay. Returns trustScore, payabilityStatus, recommendation, and evidence.",
-    mimeType: "application/json",
-  },
 };
 
-// Apply payment middleware to paid routes
+// Apply payment middleware to cyber routes
 app.use('/v1/cyber/*', cyberRateLimit);
 app.use('/v1/cyber/*', paymentMiddleware(cyberPaymentConfig, x402Server));
-app.use('/v1/x402/*', cyberRateLimit);
-app.use('/v1/x402/*', paymentMiddleware(cyberPaymentConfig, x402Server));
 
 // Mount cyber routes (actual handlers with grounding & synthesis)
 app.route('/v1/cyber', cyberRoutes);
-app.route('/v1/x402', x402Routes);
 
 function buildPublicMetadata() {
   return {
@@ -159,7 +142,6 @@ function buildPublicMetadata() {
       advice: "POST /v1/cyber/advice (paid)",
       vulns: "POST /v1/cyber/vulns (paid)",
       breaking: "GET /v1/cyber/breaking (paid)",
-      endpointCheck: "POST /v1/x402/endpoint-check (paid)",
     },
     pricing: `~$${config.defaultPriceUsd} USDC per call`,
     networks: [config.network],
@@ -191,32 +173,15 @@ app.get('/', (c) => {
       publicBaseUrl,
       priceUsd: config.defaultPriceUsd,
       network: config.network,
-      networkLabel: networkLabel(config.network),
       paymentConfigured,
       setupStatus: paymentConfigured
         ? 'ready_for_payment_testing'
         : 'service_live_but_payment_address_placeholder',
-      lastUpdated: '2026-07-04',
-      githubUrl: config.githubUrl || '',
-      statusPageUrl: config.statusPageUrl || '',
-      contactEmail: config.contactEmail || '',
     })
   );
 });
 
 app.get('/meta.json', (c) => {
-  const track = c.req.query('track');
-  if (track === 'homepage-click') {
-    log.info({
-      event: 'homepage_click',
-      target: c.req.query('target') || 'unknown',
-      href: c.req.query('href') || '',
-      userAgent: c.req.header('user-agent') || '',
-      referer: c.req.header('referer') || '',
-      ip: c.req.header('x-forwarded-for') || c.req.header('x-real-ip') || '',
-    }, 'Homepage click');
-  }
-
   return c.json(buildPublicMetadata());
 });
 

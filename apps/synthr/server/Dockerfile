@@ -1,7 +1,7 @@
 # Synthr Cyber x402 - Dockerfile
-# VPS-friendly Node runtime with healthcheck support.
+# VPS-friendly Bun runtime with healthcheck support.
 
-FROM node:24-slim AS base
+FROM oven/bun:1.2-slim AS base
 WORKDIR /app
 RUN apt-get update \
   && apt-get install -y --no-install-recommends curl \
@@ -9,16 +9,16 @@ RUN apt-get update \
 
 # Install dependencies
 FROM base AS deps
-COPY package.json package-lock.json* ./
-RUN if [ -f package-lock.json ]; then npm ci; else npm install; fi
+COPY package.json package-lock.json* bun.lockb* ./
+RUN if [ -f bun.lockb ]; then bun install --frozen-lockfile --production; else bun install --production; fi
 
-# Build stage
+# Build stage (for TS if needed, Bun runs TS natively)
 FROM base AS builder
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
 # Production runtime
-FROM base AS runner
+FROM oven/bun:1.2-slim AS runner
 WORKDIR /app
 
 # Copy built artifacts
@@ -28,7 +28,7 @@ COPY --from=builder /app/public ./public
 COPY --from=builder /app/package.json ./
 
 # Non-root user for security
-USER node
+USER bun
 
 ENV NODE_ENV=production
 ENV PORT=3000
@@ -39,4 +39,4 @@ EXPOSE 3000
 HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
   CMD curl -f http://localhost:3000/health || exit 1
 
-CMD ["./node_modules/.bin/tsx", "src/index.ts"]
+CMD ["bun", "run", "src/index.ts"]

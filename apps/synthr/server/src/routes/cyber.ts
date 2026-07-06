@@ -7,7 +7,6 @@ import {
   synthesizeAdvice,
   searchVulns,
   synthesizeBreaking,
-  UpstreamError,
 } from '../services/intel';
 
 export const cyberRoutes = new Hono();
@@ -18,15 +17,8 @@ cyberRoutes.post(
   zValidator('json', schemas.StackBriefRequest),
   async (c) => {
     const input = c.req.valid('json');
-    try {
-      const result = await synthesizeStackBrief(input);
-      return c.json(result, 200);
-    } catch (err) {
-      if (err instanceof UpstreamError) {
-        return c.json({ error: 'upstream_unavailable', upstream: err.upstream, message: err.message }, 503);
-      }
-      throw err;
-    }
+    const result = await synthesizeStackBrief(input);
+    return c.json(result, 200);
   }
 );
 
@@ -36,15 +28,8 @@ cyberRoutes.post(
   zValidator('json', schemas.DepsAuditRequest),
   async (c) => {
     const input = c.req.valid('json');
-    try {
-      const result = await synthesizeDepsAudit(input);
-      return c.json(result, 200);
-    } catch (err) {
-      if (err instanceof UpstreamError) {
-        return c.json({ error: 'upstream_unavailable', upstream: err.upstream, message: err.message }, 503);
-      }
-      throw err;
-    }
+    const result = await synthesizeDepsAudit(input);
+    return c.json(result, 200);
   }
 );
 
@@ -54,15 +39,8 @@ cyberRoutes.post(
   zValidator('json', schemas.AdviceRequest),
   async (c) => {
     const input = c.req.valid('json');
-    try {
-      const result = await synthesizeAdvice(input);
-      return c.json(result, 200);
-    } catch (err) {
-      if (err instanceof UpstreamError) {
-        return c.json({ error: 'upstream_unavailable', upstream: err.upstream, message: err.message }, 503);
-      }
-      throw err;
-    }
+    const result = await synthesizeAdvice(input);
+    return c.json(result, 200);
   }
 );
 
@@ -72,15 +50,8 @@ cyberRoutes.post(
   zValidator('json', schemas.VulnSearchRequest),
   async (c) => {
     const input = c.req.valid('json');
-    try {
-      const result = await searchVulns(input);
-      return c.json(result, 200);
-    } catch (err) {
-      if (err instanceof UpstreamError) {
-        return c.json({ error: 'upstream_unavailable', upstream: err.upstream, message: err.message }, 503);
-      }
-      throw err;
-    }
+    const result = await searchVulns(input);
+    return c.json(result, 200);
   }
 );
 
@@ -90,15 +61,8 @@ cyberRoutes.get(
   zValidator('query', schemas.BreakingRequest),
   async (c) => {
     const input = c.req.valid('query');
-    try {
-      const result = await synthesizeBreaking(input);
-      return c.json(result, 200);
-    } catch (err) {
-      if (err instanceof UpstreamError) {
-        return c.json({ error: 'upstream_unavailable', upstream: err.upstream, message: err.message }, 503);
-      }
-      throw err;
-    }
+    const result = await synthesizeBreaking(input);
+    return c.json(result, 200);
   }
 );
 
