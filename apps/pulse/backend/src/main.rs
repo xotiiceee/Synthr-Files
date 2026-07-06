@@ -6,6 +6,8 @@
 //! This is the start of the Rust replacement for the old Node/Hono hosted server.
 //! We are building clean, correct, observable code from day one.
 
+#![allow(dead_code, unused_imports, unused_variables, unused_parens)]
+
 use anyhow::{anyhow, Context};
 use axum::{
     extract::{Path, Query, State},

@@ -20,7 +20,8 @@ interface ChatModel {
 const dollarsForCredits = (credits: number) => `$${(credits / 100).toFixed(2)}`
 
 // Pending request tracker — survives component unmount (tab switches)
-const pendingRequest.current: { current: { promise: Promise<unknown>; msg: string } | null } = { current: null }
+// eslint-disable-next-line react-hooks/globals
+let pendingRequest: { promise: Promise<unknown>; msg: string } | null = null
 
 /** Render basic markdown: **bold**, numbered lists, bullet lists */
 function renderMarkdown(text: string): React.ReactNode {
@@ -126,12 +127,12 @@ export default function Chat() {
     }).catch(() => {})
 
     // If there was a pending request from before tab switch
-    if (pendingRequest.current) {
+    if (pendingRequest) {
       setSending(true)
-      pendingRequest.current.promise
+      pendingRequest.promise
         .then(() => { loadHistory(); setSending(false) })
         .catch(() => { loadHistory(); setSending(false) })
-        .finally(() => { pendingRequest.current = null })
+        .finally(() => { pendingRequest = null })
     } else {
       // Load history in background — messages already visible
       loadHistory()
@@ -159,11 +160,11 @@ export default function Chat() {
 
     // Fire the request — tracked globally so it survives tab switches
     const requestPromise = post('/api/chat-setup', { message: msg, model: selectedModel })
-    pendingRequest.current = { promise: requestPromise, msg }
+    pendingRequest = { promise: requestPromise, msg }
 
     try {
       const data = await requestPromise
-      pendingRequest.current = null
+      pendingRequest = null
 
       if (data.reply) {
         setMessages(prev => [...prev, { role: 'assistant', content: data.reply }])
@@ -192,7 +193,7 @@ export default function Chat() {
       }
       refreshCredits()
     } catch (error: any) {
-      pendingRequest.current = null
+      pendingRequest = null
       const message = error?.message?.trim() || 'Something went wrong. Try again.'
       setMessages(prev => [...prev, { role: 'assistant', content: message }])
     }
