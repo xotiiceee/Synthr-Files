@@ -2025,9 +2025,9 @@ fn format_generation_prompt(
     let persona_notes = brand_context.get("persona").and_then(|v| v.as_str()).unwrap_or("");
     let creative_style = creative_style_for_gen();
     let format_instruction = if content_type == "thread" {
-        format!("Write a short X thread. Start with: {creative_style}. Return only the thread text, one post per line, no labels.")
+        format!("Write a short X thread. Hook style: {creative_style}. Return only the thread text, one post per line, no labels.")
     } else {
-        format!("Write one polished X post. Start with: {creative_style}. Stay strictly under {char_limit} characters. Return only the post copy, no explanation.")
+        format!("Write one polished X post. Hook style: {creative_style}. Stay strictly under {char_limit} characters. Return only the post copy, no explanation.")
     };
 
     let mut prompt = format!(
@@ -2040,12 +2040,25 @@ fn format_generation_prompt(
 }
 
 fn clean_generated_content(text: &str) -> String {
-    text.trim()
-        .trim_matches('"')
-        .trim_start_matches("Post:")
-        .trim_start_matches("Copy:")
-        .trim()
-        .to_string()
+    let mut result = text.trim().to_string();
+    // Strip LLM instruction bleed
+    let prefixes = ["HOOK:", "Creative hook:", "CREATIVE DIRECTION:", "Hook style:", "Hook:", "Post:", "Copy:", "Sure!", "Here you go", "Here's a post:", "Here is a post:"];
+    for p in &prefixes {
+        let lower = result.to_lowercase();
+        if lower.starts_with(&p.to_lowercase()) {
+            if let Some(pos) = result.find('\n') {
+                if pos < result.len() / 2 {
+                    result = result[pos+1..].trim().to_string();
+                    break;
+                }
+            }
+            // Try removing just the prefix itself
+            if lower.starts_with(&p.to_lowercase()) {
+                result = result[p.len()..].trim().to_string();
+            }
+        }
+    }
+    result.trim_matches('"').trim().to_string()
 }
 
 fn enforce_char_limit(text: &str, limit: usize) -> String {
@@ -3976,13 +3989,19 @@ async fn generate_image(State(state): State<AppState>, headers: HeaderMap, Json(
 
 fn creative_style_for_gen() -> String {
     use rand::seq::SliceRandom;
-    let hooks = ["Start with a bold, controversial statement.", "Open with a personal story or relatable moment.", "Begin with a surprising statistic or counterintuitive fact.", "Lead with a provocative question.", "Start with humor.", "Use a metaphor that reframes the topic freshly.", "Begin mid-thought, like the reader walked into a conversation.", "Lead with a hot take people will agree OR fight you on.", "Open with a universal frustration.", "Punchy one-liner. No setup."];
-    let tones = ["like a late-night text from a smart friend", "advice over coffee", "founder who just had a breakthrough", "effortless cool", "breaking the fourth wall", "inside knowledge", "contrarian stance", "finally has something to say"];
-    let formats = ["Single dense paragraph", "Short staccato sentences. Punchy rhythm.", "Mini-narrative with payoff at the end", "Thesis, antithesis, synthesis", "observation -> insight -> takeaway", "Before I knew X, I believed Y. Now Z."];
-    let h = hooks.choose(&mut rand::thread_rng()).unwrap();
-    let t = tones.choose(&mut rand::thread_rng()).unwrap();
-    let f = formats.choose(&mut rand::thread_rng()).unwrap();
-    format!("CREATIVE DIRECTION: Hook: {h} Tone: {t} Format: {f} IMPORTANT: Never reuse the same hook, phrase, or structure from previous posts.")
+    let hooks = [
+        "Lead with a bold, contrarian statement",
+        "Open with a short personal story",
+        "Start with a surprising fact or stat",
+        "Ask a provocative question",
+        "Use self-deprecating humor",
+        "Introduce a fresh metaphor",
+        "Start mid-conversation like they walked in on a hot take",
+        "Call out a universal frustration",
+        "Use a punchy one-liner with no setup",
+        "Build curiosity — don't give the answer right away",
+    ];
+    hooks.choose(&mut rand::thread_rng()).unwrap().to_string()
 }
 
 // --- Persona endpoints ---

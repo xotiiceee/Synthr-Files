@@ -180,7 +180,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [selectedBrandId])
 
   const refreshCredits = useCallback(async () => {
-    if (!isLoaded || !isSignedIn) return
+    if (!isLoaded) return
     const storedAdminEmail = readStoredAdminEmail()
     const effectiveEmail = (clerkEmail || state.email || '').toLowerCase()
     const isAdmin = Boolean(effectiveEmail) && storedAdminEmail === effectiveEmail
