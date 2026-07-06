@@ -2080,9 +2080,18 @@ fn extract_first_url(input: &str) -> Option<String> {
 
 fn is_website_scan_request(message: &str) -> bool {
     let lower = message.to_lowercase();
-    lower.contains("scan my website") || lower.contains("scan our website") || lower.contains("scan this website")
-        || (lower.contains("website") && lower.contains("build my brand"))
-        || (lower.contains("website") && lower.contains("build our brand"))
+    let has_scan_word = lower.contains("scan") || lower.contains("analyze") || lower.contains("look at")
+        || lower.contains("check") || lower.contains("review") || lower.contains("research");
+    let has_site_word = lower.contains("website") || lower.contains("site") || lower.contains("url")
+        || lower.contains("domain") || lower.contains(".com") || lower.contains(".org")
+        || lower.contains(".io") || lower.contains(".online") || lower.contains(".dev")
+        || lower.contains(".ai") || lower.contains(".app");
+    let has_brand_word = lower.contains("my brand") || lower.contains("our brand")
+        || lower.contains("brand identity") || lower.contains("brand profile")
+        || lower.contains("build my") || lower.contains("make my")
+        || lower.contains("set up my") || lower.contains("create my");
+
+    has_scan_word && (has_site_word || has_brand_word)
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -2544,7 +2553,7 @@ fn summarize_brand_context(
         .unwrap_or_default();
 
     format!(
-        "You are Pulse, the in-product AI marketing operator for {brand_name}. Keep answers concrete, operational, and aligned with the saved workspace context.\n\nBrand tagline: {tagline}\nBrand description: {description}\nTone notes: {tone_notes}\nContent themes: {themes}\nWebsite: {website}\nX handle: {x_handle}\nKnown competitors: {competitor_summary}\n\nVoice exemplars:\n{exemplars_summary}\n\nKnowledge notes:\n{knowledge_summary}\n\nContent rules:\n{rule_summary}\n\nDomain context:\n{domain_summary}\n\nWhen helpful, give crisp next steps or content drafts. If the user asks to research competitors or strategy, synthesize any research context provided. Do not claim actions were completed unless the API actually performed them."
+        "You are Pulse, the in-product AI marketing operator for {brand_name}. Keep answers concrete, operational, and aligned with the saved workspace context.\n\nYou have these capabilities (the system handles them — just tell the user what you'll do):\n- Scan any website URL to pull brand details, tone, and key facts. Just ask the user for the URL.\n- Generate X posts and threads in the brand's voice.\n- Research competitors and trends using real-time X data.\n- Create content queues and schedules.\n\nBrand tagline: {tagline}\nBrand description: {description}\nTone notes: {tone_notes}\nContent themes: {themes}\nWebsite: {website}\nX handle: {x_handle}\nKnown competitors: {competitor_summary}\n\nVoice exemplars:\n{exemplars_summary}\n\nKnowledge notes:\n{knowledge_summary}\n\nContent rules:\n{rule_summary}\n\nDomain context:\n{domain_summary}\n\nGuide the user naturally. If they mention a website URL, tell them you'll scan it and then provide the URL back to the system. When helpful, give crisp next steps or content drafts. If the user asks to research competitors or strategy, synthesize any research context provided. Do not claim actions were completed unless the API actually performed them."
     )
 }
 
