@@ -2042,6 +2042,20 @@ fn clean_generated_content(text: &str) -> String {
         .to_string()
 }
 
+fn enforce_char_limit(text: &str, limit: usize) -> String {
+    let cleaned = clean_generated_content(text);
+    if cleaned.len() <= limit { return cleaned }
+    // Cut at last sentence or space before limit
+    let truncated = &cleaned[..limit];
+    match truncated.rfind(". ") {
+        Some(pos) if pos > limit / 2 => format!("{}", &cleaned[..=pos]),
+        _ => match truncated.rfind(' ') {
+            Some(pos) if pos > limit / 2 => format!("{}", &cleaned[..pos]),
+            _ => truncated.to_string(),
+        }
+    }
+}
+
 fn collapse_whitespace(input: &str) -> String {
     input.split_whitespace().collect::<Vec<_>>().join(" ").trim().to_string()
 }
@@ -2197,6 +2211,7 @@ async fn generate_content(
         Ok(auth) => auth,
         Err(err) => return err.into_response(),
     };
+    if let Err(err) = require_positive_balance(&state, &auth).await { return err.into_response(); }
     let topic = payload
         .get("topic")
         .and_then(|v| v.as_str())
@@ -2259,7 +2274,7 @@ async fn generate_content(
     .await
     {
         Ok((reply, backend)) => (
-            clean_generated_content(&reply),
+            enforce_char_limit(&reply, if content_type == "thread" { 25000 } else { char_limit }),
             backend.provider_label,
             backend.model,
         ),
@@ -2271,6 +2286,22 @@ async fn generate_content(
                 "brand-template".to_string(),
             )
         }
+    };
+
+    let gen_cost: i64 = if content_type == "thread" { 6 } else { 2 };
+    let remaining = match debit_credits(&state, &auth, gen_cost, SpendEvent {
+        id: Uuid::new_v4().to_string(), created_at: chrono::Utc::now().to_rfc3339(),
+        category: "llm".into(), rail: "content".into(),
+        recipient: format!("{}/{}", provider, model),
+        provider: Some(provider.clone()), endpoint: Some("openrouter.ai".into()),
+        endpoint_path: Some("/api/generate".into()), method: Some("POST".into()),
+        query_text: Some(topic.to_string()), data_type: Some(content_type.to_string()),
+        since_hours: None, purpose: "Content generation".into(), step: "generate".into(),
+        amount_usd: 0.0, amount_display: String::new(), cache_hit: None,
+        savings_usd: None, decision_trace: None, status: "posted".into(), verifiable: true,
+    }).await {
+        Ok(r) => r,
+        Err(e) => return (StatusCode::PAYMENT_REQUIRED, Json(serde_json::json!({"error": e.to_string()}))).into_response(),
     };
 
     let thread = if content_type == "thread" {
@@ -2300,8 +2331,8 @@ async fn generate_content(
         "type": content_type,
         "provider": provider,
         "model": model,
-        "cost": 2,
-        "creditsRemaining": 1238
+        "cost": gen_cost,
+        "creditsRemaining": remaining
     }))
     .into_response()
 }
@@ -3824,15 +3855,17 @@ async fn generate_image(State(state): State<AppState>, headers: HeaderMap, Json(
     let rp = payload.get("prompt").and_then(|v| v.as_str()).unwrap_or("").trim().to_string();
     if rp.is_empty() { return (StatusCode::BAD_REQUEST, Json(serde_json::json!({"error": "Prompt is required"}))).into_response(); }
     let use_bc = payload.get("context").and_then(|v| v.as_str()).unwrap_or("") == "brand";
+    let workspace_key = workspace_scope_key(&state, &auth, &headers).await;
     let prompt = if use_bc {
-        let saved_profile = scoped_value(&state.brand_profile, &auth, || serde_json::json!({})).await;
-        let bn = saved_profile.pointer("/identity/name").and_then(|v| v.as_str()).unwrap_or("");
+        let saved_profile = scoped_value_for_key(&state.brand_profile, &workspace_key, default_brand_profile).await;
+        let bn = saved_profile.pointer("/identity/name").and_then(|v| v.as_str()).filter(|s| !s.is_empty()).unwrap_or("the brand");
         let desc = saved_profile.pointer("/identity/description").and_then(|v| v.as_str()).unwrap_or("");
+        let tone = saved_profile.pointer("/voice/toneNotes").and_then(|v| v.as_str()).filter(|s| !s.is_empty()).unwrap_or("clean and modern");
         let themes: Vec<String> = saved_profile.get("contentThemes").and_then(|v| v.as_array()).map(|a| a.iter().filter_map(|s| s.as_str().map(|s| s.to_string())).collect()).unwrap_or_default();
         use rand::seq::SliceRandom;
         let styles = ["minimalist and clean", "bold and vibrant", "moody and atmospheric", "playful and colorful", "professional and polished", "abstract and artistic"];
         let s = styles.choose(&mut rand::thread_rng()).unwrap();
-        format!("Generate a brand image for {bn}. {desc}. Visual themes: {}. Style: {s}. User request: {rp}. No generic stock photo look.", themes.join(", "))
+        format!("Generate a brand image for {bn}: {desc}. Brand tone: {tone}. Visual themes: {}. Style: {s}. User request: {rp}. Do not use generic stock photo look.", themes.join(", "))
     } else { rp };
     let api_key = std::env::var("OPENROUTER_API_KEY").unwrap_or_default();
     let client = Client::builder().timeout(Duration::from_secs(45)).build().unwrap();
