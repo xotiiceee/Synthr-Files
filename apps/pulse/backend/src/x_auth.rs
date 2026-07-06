@@ -17,7 +17,7 @@ pub struct XUserToken {
 
 pub struct XAuthStore {
     tokens: Mutex<HashMap<String, XUserToken>>,
-    states: Mutex<HashMap<String, (String, String)>>, // state -> (user_id, redirect_after)
+    states: Mutex<HashMap<String, (String, String, String)>>, // state -> (user_id, code_verifier, redirect_after)
 }
 
 impl XAuthStore {
@@ -28,11 +28,11 @@ impl XAuthStore {
         }
     }
 
-    pub async fn store_state(&self, state: &str, user_id: &str, redirect_after: &str) {
-        self.states.lock().await.insert(state.to_string(), (user_id.to_string(), redirect_after.to_string()));
+    pub async fn store_state(&self, state: &str, user_id: &str, code_verifier: &str, redirect_after: &str) {
+        self.states.lock().await.insert(state.to_string(), (user_id.to_string(), code_verifier.to_string(), redirect_after.to_string()));
     }
 
-    pub async fn take_state(&self, state: &str) -> Option<(String, String)> {
+    pub async fn take_state(&self, state: &str) -> Option<(String, String, String)> {
         self.states.lock().await.remove(state)
     }
 
@@ -57,176 +57,49 @@ impl XAuthStore {
     }
 }
 
-// ─── OAuth 1.0a ────────────────────────────────────────────────────────────────
+// ─── OAuth 1.0a (media upload only) ────────────────────────────────────────────
 
-fn url_encode(s: &str) -> String {
-    let encoded: String = s.chars().map(|c| match c {
+fn oauth_percent_encode(s: &str) -> String {
+    s.chars().map(|c| match c {
         'A'..='Z' | 'a'..='z' | '0'..='9' | '-' | '_' | '.' | '~' => c.to_string(),
         _ => format!("%{:02X}", c as u8),
-    }).collect();
-    encoded
+    }).collect()
 }
 
-fn oauth_nonce() -> String {
-    let mut rng = rand::thread_rng();
-    let bytes: Vec<u8> = (0..16).map(|_| rng.gen()).collect();
-    use base64::{engine::general_purpose::STANDARD, Engine};
-    STANDARD.encode(&bytes).trim_end_matches('=').to_string()
-}
-
-fn oauth_sign(
-    method: &str,
-    base_url: &str,
-    params: &HashMap<String, String>,
+fn oauth1_sign(
     consumer_secret: &str,
     token_secret: &str,
+    method: &str,
+    url: &str,
+    params: &[(&str, &str)],
 ) -> String {
-    let mut sorted: Vec<(&String, &String)> = params.iter().collect();
+    let mut sorted: Vec<_> = params.iter().collect();
     sorted.sort_by(|a, b| a.0.cmp(b.0).then(a.1.cmp(b.1)));
-    let param_str: String = sorted.iter()
-        .map(|(k, v)| format!("{}={}", url_encode(k), url_encode(v)))
+
+    let param_str = sorted.iter()
+        .map(|(k, v)| format!("{}={}", oauth_percent_encode(k), oauth_percent_encode(v)))
         .collect::<Vec<_>>()
         .join("&");
 
-    let base = format!("{}&{}&{}",
+    let sig_base = format!("{}&{}&{}",
         method.to_uppercase(),
-        url_encode(base_url),
-        url_encode(&param_str),
+        oauth_percent_encode(url),
+        oauth_percent_encode(&param_str),
     );
 
-    let signing_key = format!("{}&{}", url_encode(consumer_secret), url_encode(token_secret));
+    let key = format!("{}&{}", oauth_percent_encode(consumer_secret), oauth_percent_encode(token_secret));
 
     use hmac::{Hmac, Mac};
     use sha1::Sha1;
     type HmacSha1 = Hmac<Sha1>;
-    let mut mac = HmacSha1::new_from_slice(signing_key.as_bytes()).expect("HMAC can take key of any size");
-    mac.update(base.as_bytes());
-    let result = mac.finalize();
+    let mut mac = HmacSha1::new_from_slice(key.as_bytes()).unwrap();
+    mac.update(sig_base.as_bytes());
 
     use base64::{engine::general_purpose::STANDARD, Engine};
-    STANDARD.encode(&result.into_bytes())
+    STANDARD.encode(&mac.finalize().into_bytes())
 }
 
-fn oauth1_auth_header(
-    consumer_key: &str,
-    access_token: &str,
-    access_secret: &str,
-    consumer_secret: &str,
-    method: &str,
-    url: &str,
-    extra_params: &HashMap<String, String>,
-) -> String {
-    let mut params = HashMap::new();
-    params.insert("oauth_consumer_key".to_string(), consumer_key.to_string());
-    params.insert("oauth_nonce".to_string(), oauth_nonce());
-    params.insert("oauth_signature_method".to_string(), "HMAC-SHA1".to_string());
-    params.insert("oauth_timestamp".to_string(), chrono::Utc::now().timestamp().to_string());
-    params.insert("oauth_token".to_string(), access_token.to_string());
-    params.insert("oauth_version".to_string(), "1.0".to_string());
-    for (k, v) in extra_params {
-        params.insert(k.clone(), v.clone());
-    }
-
-    let sig = oauth_sign(method, url, &params, consumer_secret, access_secret);
-
-    let mut header = String::from("OAuth ");
-    let oauth_keys = ["oauth_consumer_key", "oauth_nonce", "oauth_signature", "oauth_signature_method", "oauth_timestamp", "oauth_token", "oauth_version"];
-    for (i, key) in oauth_keys.iter().enumerate() {
-        if i > 0 { header.push_str(", "); }
-        let val = if *key == "oauth_signature" { &sig } else { params.get(*key).map(|s| s.as_str()).unwrap_or("") };
-        header.push_str(&format!("{}=\"{}\"", key, url_encode(val)));
-    }
-    for (k, v) in extra_params {
-        header.push_str(&format!(", {}=\"{}\"", url_encode(k), url_encode(v)));
-    }
-    header
-}
-
-pub async fn oauth1_post(
-    consumer_key: &str,
-    consumer_secret: &str,
-    access_token: &str,
-    access_secret: &str,
-    url: &str,
-    form: &[(&str, &str)],
-) -> anyhow::Result<String> {
-    let mut extra = HashMap::new();
-    for (k, v) in form {
-        extra.insert(k.to_string(), v.to_string());
-    }
-    let auth = oauth1_auth_header(consumer_key, access_token, access_secret, consumer_secret, "POST", url, &extra);
-    let client = Client::new();
-    let res = client.post(url).header("Authorization", &auth).form(&form.iter().map(|(k,v)| (*k, *v)).collect::<Vec<_>>()).send().await?;
-    Ok(res.text().await?)
-}
-
-// ─── OAuth 1.0a flow ───────────────────────────────────────────────────────────
-
-pub async fn oauth1_request_token(
-    consumer_key: &str,
-    consumer_secret: &str,
-    oauth_callback: &str,
-) -> anyhow::Result<(String, String)> {
-    let mut params = HashMap::new();
-    params.insert("oauth_callback".to_string(), oauth_callback.to_string());
-    let auth = oauth1_auth_header(consumer_key, "", "", consumer_secret, "POST",
-        "https://api.twitter.com/oauth/request_token", &params);
-    let client = Client::new();
-    let res = client.post("https://api.twitter.com/oauth/request_token")
-        .header("Authorization", &auth)
-        .form(&[("oauth_callback", oauth_callback)])
-        .send().await?;
-    let body = res.text().await?;
-    let mut parsed = HashMap::new();
-    for pair in body.split('&') {
-        let mut kv = pair.splitn(2, '=');
-        if let (Some(k), Some(v)) = (kv.next(), kv.next()) {
-            parsed.insert(k.to_string(), v.to_string());
-        }
-    }
-    let token = parsed.get("oauth_token").cloned().ok_or_else(|| anyhow::anyhow!("oauth_token missing: {body}"))?;
-    let secret = parsed.get("oauth_token_secret").cloned().ok_or_else(|| anyhow::anyhow!("oauth_token_secret missing: {body}"))?;
-    Ok((token, secret))
-}
-
-pub fn oauth1_auth_url(request_token: &str) -> String {
-    format!("https://api.twitter.com/oauth/authorize?oauth_token={}", request_token)
-}
-
-pub async fn oauth1_access_token(
-    consumer_key: &str,
-    consumer_secret: &str,
-    request_token: &str,
-    request_secret: &str,
-    oauth_verifier: &str,
-) -> anyhow::Result<(String, String, String, String)> {
-    let mut params = HashMap::new();
-    params.insert("oauth_verifier".to_string(), oauth_verifier.to_string());
-    let auth = oauth1_auth_header(consumer_key, request_token, request_secret, consumer_secret, "POST",
-        "https://api.twitter.com/oauth/access_token", &params);
-    let client = Client::new();
-    let res = client.post("https://api.twitter.com/oauth/access_token")
-        .header("Authorization", &auth)
-        .form(&[("oauth_verifier", oauth_verifier)])
-        .send().await?;
-    let body = res.text().await?;
-    let mut parsed = HashMap::new();
-    for pair in body.split('&') {
-        let mut kv = pair.splitn(2, '=');
-        if let (Some(k), Some(v)) = (kv.next(), kv.next()) {
-            parsed.insert(k.to_string(), v.to_string());
-        }
-    }
-    let access_token = parsed.get("oauth_token").cloned().ok_or_else(|| anyhow::anyhow!("oauth_token missing: {body}"))?;
-    let access_secret = parsed.get("oauth_token_secret").cloned().ok_or_else(|| anyhow::anyhow!("token_secret missing: {body}"))?;
-    let x_user_id = parsed.get("user_id").cloned().unwrap_or_default();
-    let x_handle = parsed.get("screen_name").cloned().unwrap_or_default();
-    Ok((access_token, access_secret, x_user_id, format!("@{x_handle}")))
-}
-
-// ─── OAuth 1.0a API calls ──────────────────────────────────────────────────────
-
-pub async fn x_media_upload_oauth1(
+pub async fn x_media_upload(
     consumer_key: &str,
     consumer_secret: &str,
     access_token: &str,
@@ -235,16 +108,34 @@ pub async fn x_media_upload_oauth1(
     mime_type: &str,
 ) -> anyhow::Result<String> {
     let url = "https://upload.twitter.com/1.1/media/upload.json";
-    let auth = oauth1_auth_header(consumer_key, access_token, access_secret, consumer_secret, "POST", url, &HashMap::new());
+    let nonce: String = (0..32).map(|_| rand::thread_rng().sample(rand::distributions::Alphanumeric) as char).collect();
+    let ts = chrono::Utc::now().timestamp().to_string();
+
+    let params: Vec<(&str, &str)> = vec![
+        ("oauth_consumer_key", consumer_key),
+        ("oauth_nonce", &nonce),
+        ("oauth_signature_method", "HMAC-SHA1"),
+        ("oauth_timestamp", &ts),
+        ("oauth_token", access_token),
+        ("oauth_version", "1.0"),
+    ];
+
+    let sig = oauth1_sign(consumer_secret, access_secret, "POST", url, &params);
+
+    let auth_header = format!(
+        "OAuth oauth_consumer_key=\"{}\", oauth_nonce=\"{}\", oauth_signature=\"{}\", oauth_signature_method=\"HMAC-SHA1\", oauth_timestamp=\"{}\", oauth_token=\"{}\", oauth_version=\"1.0\"",
+        oauth_percent_encode(consumer_key),
+        oauth_percent_encode(&nonce),
+        oauth_percent_encode(&sig),
+        ts,
+        oauth_percent_encode(access_token),
+    );
 
     let part = reqwest::multipart::Part::bytes(image_bytes).file_name("image.png").mime_str(mime_type)?;
     let form = reqwest::multipart::Form::new().part("media", part);
 
     let client = Client::new();
-    let res = client.post(url)
-        .header("Authorization", &auth)
-        .multipart(form)
-        .send().await?;
+    let res = client.post(url).header("Authorization", &auth_header).multipart(form).send().await?;
     let status = res.status();
     let body = res.text().await?;
     if !status.is_success() {
@@ -255,38 +146,7 @@ pub async fn x_media_upload_oauth1(
         .ok_or_else(|| anyhow::anyhow!("No media_id_string in: {body}"))
 }
 
-pub async fn x_tweet_oauth1(
-    consumer_key: &str,
-    consumer_secret: &str,
-    access_token: &str,
-    access_secret: &str,
-    text: &str,
-    media_id: Option<&str>,
-) -> anyhow::Result<String> {
-    let url = "https://api.twitter.com/2/tweets";
-    let tb = if let Some(mid) = media_id {
-        serde_json::json!({"text": text, "media": {"media_ids": [mid]}})
-    } else {
-        serde_json::json!({"text": text})
-    };
-
-    let client = Client::new();
-    let auth_header = format!("Bearer {}", access_token);
-    let res = client.post(url)
-        .header("Authorization", &auth_header)
-        .json(&tb)
-        .send().await?;
-    let status = res.status();
-    let body = res.text().await?;
-    if !status.is_success() {
-        return Err(anyhow::anyhow!("X tweet: HTTP {status} — {body}"));
-    }
-    let parsed: serde_json::Value = serde_json::from_str(&body)?;
-    parsed["data"]["id"].as_str().map(|s| s.to_string())
-        .ok_or_else(|| anyhow::anyhow!("No tweet id in: {body}"))
-}
-
-// ─── Legacy OAuth 2.0 (kept for reference) ─────────────────────────────────────
+// ─── OAuth 2.0 (login + tweet posting) ───────────────────────────────────────
 
 pub async fn generate_pkce() -> (String, String) {
     let mut rng = rand::thread_rng();
@@ -305,6 +165,30 @@ pub async fn generate_pkce() -> (String, String) {
 fn base64_url_encode(input: &[u8]) -> String {
     use base64::{engine::general_purpose::URL_SAFE_NO_PAD, Engine};
     URL_SAFE_NO_PAD.encode(input)
+}
+
+pub fn x_auth_url(client_id: &str, redirect_uri: &str, state: &str, code_challenge: &str) -> String {
+    format!(
+        "https://twitter.com/i/oauth2/authorize?response_type=code&client_id={}&redirect_uri={}&scope=tweet.read%20tweet.write%20users.read%20media.write%20offline.access&state={}&code_challenge={}&code_challenge_method=S256",
+        client_id,
+        url_encode_rfc3986(redirect_uri),
+        state,
+        code_challenge
+    )
+}
+
+fn url_encode_rfc3986(s: &str) -> String {
+    s.chars().map(|c| match c {
+        ':' => "%3A".to_string(),
+        '/' => "%2F".to_string(),
+        '?' => "%3F".to_string(),
+        '&' => "%26".to_string(),
+        '=' => "%3D".to_string(),
+        '#' => "%23".to_string(),
+        ' ' => "%20".to_string(),
+        c if c.is_alphanumeric() || c == '-' || c == '_' || c == '.' || c == '~' => c.to_string(),
+        _ => format!("%{:02X}", c as u8),
+    }).collect()
 }
 
 pub async fn exchange_code_for_token(
