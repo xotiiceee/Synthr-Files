@@ -1995,6 +1995,7 @@ fn format_generation_prompt(
     topic: &str,
     content_type: &str,
     platform: &str,
+    char_limit: usize,
     brand_context: &serde_json::Value,
 ) -> String {
     let brand_name = brand_context
@@ -2020,13 +2021,13 @@ fn format_generation_prompt(
     let topics = string_list_from_json(brand_context.get("topics")).join(", ");
     let competitors = string_list_from_json(brand_context.get("competitors")).join(", ");
     let format_instruction = if content_type == "thread" {
-        "Write a short X thread. Return only the thread text, one post per line, no labels."
+        "Write a short X thread. Return only the thread text, one post per line, no labels.".to_string()
     } else {
-        "Write one polished X post. Return only the post copy, no explanation."
+        format!("Write one polished X post. Stay strictly under {char_limit} characters. Return only the post copy, no explanation.")
     };
 
     format!(
-        "{format_instruction}\n\nUser request: {topic}\nPlatform: {platform}\nBrand: {brand_name}\nNiche: {niche}\nWebsite: {website}\nDescription: {description}\nTone: {tone}\nContent themes: {topics}\nCompetitors: {competitors}\n\nIf the user says \"my brand,\" use the Brand above. Make the copy specific to this Brand. Stay within X length when writing a single post."
+        "{format_instruction}\n\nUser request: {topic}\nPlatform: {platform}\nBrand: {brand_name}\nNiche: {niche}\nWebsite: {website}\nDescription: {description}\nTone: {tone}\nContent themes: {topics}\nCompetitors: {competitors}\n\nIf the user says \"my brand,\" use the Brand above. Make the copy specific to this Brand. The post MUST be under {char_limit} characters."
     )
 }
 
@@ -2066,6 +2067,16 @@ fn looks_like_domain(word: &str) -> bool {
     let has_alpha = tld.chars().any(|c| c.is_alphabetic());
     let all_valid = trimmed.chars().all(|c| c.is_alphanumeric() || c == '.' || c == '-');
     has_alpha && all_valid && parts.iter().all(|p| !p.is_empty())
+}
+
+fn extract_knowledge_topic(msg: &str) -> String {
+    let lower = msg.to_lowercase();
+    for keyword in ["strategy", "competitor", "audience", "positioning", "tone", "voice", "niche", "brand", "market", "growth", "content", "pricing"] {
+        if lower.contains(keyword) {
+            return format!("{} insights", keyword);
+        }
+    }
+    "Chat insight".to_string()
 }
 
 fn extract_first_url(input: &str) -> Option<String> {
@@ -2197,6 +2208,10 @@ async fn generate_content(
         .get("platform")
         .and_then(|v| v.as_str())
         .unwrap_or("x");
+    let char_limit = payload
+        .get("charLimit")
+        .and_then(|v| v.as_u64())
+        .unwrap_or(280) as usize;
     let selected_model = payload.get("model").and_then(|v| v.as_str());
     let brand_id = payload
         .get("brandId")
@@ -2228,7 +2243,7 @@ async fn generate_content(
         &saved_profile,
         &saved_domain,
     );
-    let user_message = format_generation_prompt(topic, content_type, platform, &brand_context);
+    let user_message = format_generation_prompt(topic, content_type, platform, char_limit, &brand_context);
 
     let (text, provider, model) = match run_real_chat(
         &state,
@@ -2999,10 +3014,39 @@ async fn chat_setup(
     history.push(serde_json::json!({ "role": "assistant", "content": reply.clone() }));
     put_scoped_vec_for_key(&state.chat_history, &workspace_key, history).await;
 
+    // Auto-extract knowledge notes when the conversation contains substantive info.
+    let mut knowledge_added: Vec<String> = Vec::new();
+    let reply_lower = reply.to_lowercase();
+    let is_knowledge_worthy = reply.len() > 120
+        && (reply_lower.contains("strategy") || reply_lower.contains("competitor")
+            || reply_lower.contains("audience") || reply_lower.contains("positioning")
+            || reply_lower.contains("differentiate") || reply_lower.contains("tone")
+            || reply_lower.contains("voice") || reply_lower.contains("brand identity")
+            || reply_lower.contains("niche") || reply_lower.contains("pillar")
+            || reply_lower.contains("content plan") || reply_lower.contains("recommend")
+            || lower.contains("learn about") || lower.contains("teach")
+            || lower.contains("remember") || lower.contains("note this")
+            || lower.contains("save this"));
+    if is_knowledge_worthy {
+        let topic = extract_knowledge_topic(&msg);
+        let note = serde_json::json!({
+            "id": Uuid::new_v4().to_string(),
+            "topic": topic,
+            "content": reply,
+            "tags": [],
+            "createdAt": chrono::Utc::now().to_rfc3339(),
+            "source": "chat-auto"
+        });
+        let mut notes = scoped_vec_for_key(&state.knowledge_notes, &workspace_key, Vec::new).await;
+        notes.push(note);
+        put_scoped_vec_for_key(&state.knowledge_notes, &workspace_key, notes).await;
+        knowledge_added.push(format!("Saved knowledge note: {}", topic));
+    }
+
     let mut resp = serde_json::json!({
         "ok": true,
         "reply": reply,
-        "actionResults": [],
+        "actionResults": knowledge_added,
         "provider": backend.provider_label,
         "model": backend.model
     });
