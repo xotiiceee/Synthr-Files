@@ -260,6 +260,7 @@ pub trait XDataSource: Send + Sync {
 
 /// The star: ClawAPIs via x402. ~$0.001 per high-quality native X call.
 /// This is what makes Pulse dramatically more affordable + higher signal than Serper.
+#[allow(dead_code)]
 pub struct ClawApisX402Source {
     http: ReqwestClient,
     base_url: String,

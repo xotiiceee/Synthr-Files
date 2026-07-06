@@ -239,7 +239,7 @@ impl PersonaStore {
         .collect();
 
         match row {
-            Some((core_json, voice_json, tells_json, name, brand_name, niche, tone, website, topics, competitors)) => {
+            Some((core_json, voice_json, tells_json, _name, brand_name, niche, tone, website, topics, competitors)) => {
                 let core = core_json.and_then(|v| serde_json::from_value::<PersonaCore>(v).ok())
                     .unwrap_or_else(|| PersonaCore {
                         brand_name: brand_name.unwrap_or_default(),

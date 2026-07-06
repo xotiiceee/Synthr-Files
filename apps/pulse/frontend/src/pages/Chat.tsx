@@ -19,8 +19,8 @@ interface ChatModel {
 
 const dollarsForCredits = (credits: number) => `$${(credits / 100).toFixed(2)}`
 
-// Pending request tracker — survives component unmount
-let pendingRequest: { promise: Promise<any>; msg: string } | null = null
+// Pending request tracker — survives component unmount (tab switches)
+const pendingRequest.current: { current: { promise: Promise<unknown>; msg: string } | null } = { current: null }
 
 /** Render basic markdown: **bold**, numbered lists, bullet lists */
 function renderMarkdown(text: string): React.ReactNode {
@@ -28,7 +28,7 @@ function renderMarkdown(text: string): React.ReactNode {
   const elements: React.ReactNode[] = []
 
   for (let i = 0; i < lines.length; i++) {
-    let line = lines[i]
+    const line = lines[i]
 
     // Inline formatting: **bold** and [text](url)
     const parts: React.ReactNode[] = []
@@ -126,12 +126,12 @@ export default function Chat() {
     }).catch(() => {})
 
     // If there was a pending request from before tab switch
-    if (pendingRequest) {
+    if (pendingRequest.current) {
       setSending(true)
-      pendingRequest.promise
+      pendingRequest.current.promise
         .then(() => { loadHistory(); setSending(false) })
         .catch(() => { loadHistory(); setSending(false) })
-        .finally(() => { pendingRequest = null })
+        .finally(() => { pendingRequest.current = null })
     } else {
       // Load history in background — messages already visible
       loadHistory()
@@ -159,11 +159,11 @@ export default function Chat() {
 
     // Fire the request — tracked globally so it survives tab switches
     const requestPromise = post('/api/chat-setup', { message: msg, model: selectedModel })
-    pendingRequest = { promise: requestPromise, msg }
+    pendingRequest.current = { promise: requestPromise, msg }
 
     try {
       const data = await requestPromise
-      pendingRequest = null
+      pendingRequest.current = null
 
       if (data.reply) {
         setMessages(prev => [...prev, { role: 'assistant', content: data.reply }])
@@ -192,7 +192,7 @@ export default function Chat() {
       }
       refreshCredits()
     } catch (error: any) {
-      pendingRequest = null
+      pendingRequest.current = null
       const message = error?.message?.trim() || 'Something went wrong. Try again.'
       setMessages(prev => [...prev, { role: 'assistant', content: message }])
     }
@@ -321,7 +321,7 @@ export default function Chat() {
                         className="btn-ghost"
                         onClick={() => setExpandedMsgs(prev => {
                           const next = new Set(prev)
-                          isExpanded ? next.delete(i) : next.add(i)
+                          if (isExpanded) next.delete(i); else next.add(i)
                           return next
                         })}
                         style={{

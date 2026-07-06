@@ -2,7 +2,6 @@ use reqwest::Client;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use tokio::sync::Mutex;
-use std::sync::Arc;
 use rand::Rng;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -126,7 +125,7 @@ pub async fn exchange_code_for_token(
         .ok_or_else(|| anyhow::anyhow!("Missing access_token"))?
         .to_string();
     let refresh_token = body["refresh_token"].as_str().map(|s| s.to_string());
-    let expires_at = body.get("expires_in").and_then(|v| v.as_i64()).map(|secs| {
+    let _expires_at = body.get("expires_in").and_then(|v| v.as_i64()).map(|secs| {
         chrono::Utc::now() + chrono::Duration::seconds(secs)
     }).map(|d| d.to_rfc3339());
 
