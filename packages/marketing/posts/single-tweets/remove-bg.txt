@@ -1,9 +1,0 @@
-Just discovered Remove.bg — remove image backgrounds automatically
-
-Remove.bg uses AI to detect subjects and remove backgrounds in seconds. It is the most reliable tool for this specific t...
-
-🎉 Free tier available!
-
-Review: https://synthr.online/tool/remove-bg/
-
-#AI #DesignTools

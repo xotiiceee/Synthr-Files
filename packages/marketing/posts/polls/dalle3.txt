@@ -1,9 +1,0 @@
-Designers: Have you tried DALL-E 3 yet?
-
-OpenAI's latest image generation
-
-🟢 Yes, love it
-🟡 Tried it, not for me
-🔴 Never heard of it
-
-Full review: https://synthr.online/tool/dalle3/

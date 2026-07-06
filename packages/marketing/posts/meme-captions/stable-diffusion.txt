@@ -1,4 +1,0 @@
-Me: I need a professional design in 5 minutes
-Stable Diffusion: Hold my beer
-
-https://synthr.online/tool/stable-diffusion/

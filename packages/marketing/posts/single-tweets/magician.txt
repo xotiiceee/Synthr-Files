@@ -1,9 +1,0 @@
-Just discovered Magician — ai design tools inside figma
-
-Magician is a Figma plugin that brings AI directly into your design workflow. It can generate icons, copy, and images fr...
-
-🎉 Free tier available!
-
-Review: https://synthr.online/tool/magician/
-
-#AI #DesignTools

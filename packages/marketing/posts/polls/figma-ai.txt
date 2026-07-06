@@ -1,9 +1,0 @@
-Designers: Have you tried Figma AI yet?
-
-Native AI features in Figma
-
-🟢 Yes, love it
-🟡 Tried it, not for me
-🔴 Never heard of it
-
-Full review: https://synthr.online/tool/figma-ai/

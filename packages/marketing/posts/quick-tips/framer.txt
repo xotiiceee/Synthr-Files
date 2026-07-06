@@ -1,7 +1,0 @@
-💡 Quick tip: Use Framer for ai layout generation.
-
-It takes 30 seconds and looks like you spent hours.
-
-
-
-https://synthr.online/tool/framer/

@@ -1,9 +1,0 @@
-Designers: Have you tried Magician yet?
-
-AI design tools inside Figma
-
-🟢 Yes, love it
-🟡 Tried it, not for me
-🔴 Never heard of it
-
-Full review: https://synthr.online/tool/magician/

@@ -1,9 +1,0 @@
-Designers: Have you tried Remove.bg yet?
-
-Remove image backgrounds automatically
-
-🟢 Yes, love it
-🟡 Tried it, not for me
-🔴 Never heard of it
-
-Full review: https://synthr.online/tool/remove-bg/

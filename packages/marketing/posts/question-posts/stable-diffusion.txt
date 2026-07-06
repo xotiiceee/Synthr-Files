@@ -1,9 +1,0 @@
-Designers who use Stable Diffusion:
-
-What's your favorite feature?
-
-Mine is Local generation.
-
-I wrote a full review here: https://synthr.online/tool/stable-diffusion/
-
-#AI #DesignTools

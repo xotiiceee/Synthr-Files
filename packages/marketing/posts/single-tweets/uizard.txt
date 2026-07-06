@@ -1,9 +1,0 @@
-Just discovered Uizard — ai-powered ui design tool
-
-Uizard turns sketches and text prompts into editable UI designs. Upload a hand-drawn wireframe or describe your app, and...
-
-🎉 Free tier available!
-
-Review: https://synthr.online/tool/uizard/
-
-#AI #DesignTools

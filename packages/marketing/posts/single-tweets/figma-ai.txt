@@ -1,9 +1,0 @@
-Just discovered Figma AI — native ai features in figma
-
-Figma AI brings generative features directly into the design tool you already use. Auto-layout suggestions, AI-generated...
-
-🎉 Free tier available!
-
-Review: https://synthr.online/tool/figma-ai/
-
-#AI #DesignTools
