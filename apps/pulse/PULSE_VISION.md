@@ -85,6 +85,8 @@ Response: { planId: "plan_abc123", status: "running", estimatedBudget: 32 }
 
 ## Architecture: Two-Layer Execution Model
 
+**Current foundation (actualized):** The backend work began by building a strong **Intelligence layer** — a unified in-process TS gateway (knowledge store + GitHub linkage + X intel) with real cost metadata (IntelMeta), semantic retrieval, and a thin x402 surface (`deep_research` + `decompose_goal` primitives). This provides the cache, provenance, and cheap signals that both the Planner and Worker will rely on. A Rust backend skeleton handles high-value seams (agents + x-intel gateway). Full goal execution is layered on top of this.
+
 ### Layer 1: The Planner (Strong Model)
 
 When a user expresses a goal, a **planning model** (GPT-4o, Claude Sonnet) decomposes it:
@@ -108,56 +110,61 @@ Planner (strong model)
 
 The planner outputs a **JSON goal plan** — not code, just a structured task list with dependencies, budget estimates, and success criteria.
 
-### Layer 2: The Worker (Existing System)
+### Layer 2: The Worker (Execution + Intelligence)
 
-The plan gets fed into Pulse's existing execution engine:
+The plan gets fed into Pulse's execution engine (currently a hybrid of the TS hosted system + Rust backend for agents/intel). The Intelligence Gateway (actualized) supplies cached, measured data to every step:
 
 ```
 Goal Plan (JSON)
     │
     ▼
-Goal Executor (new)
+Goal Executor (hybrid TS + Rust)
     │
-    ├── Schedules tasks in the job queue
-    ├── Tracks dependencies (don't post launch before teasers)
-    ├── Reports progress back to user
+    ├── Uses the Intelligence Gateway for cheap, traced context (X + GitHub + knowledge)
+    ├── Schedules tasks in the job queue (or Rust worker paths)
+    ├── Tracks dependencies
+    ├── Reports progress + cost back to user
     ├── Handles failures (retry, escalate, adapt)
     └── Updates the planner on results for learning
 ```
 
-The worker uses the **same tools that already exist**: content generation, outreach, monitoring, auto-research. Nothing new to build at the execution layer — just better orchestration.
+The worker leverages the **Intelligence Gateway** (actualized) for all data acquisition plus the existing tools (content generation, outreach, monitoring, auto-research). The gateway ensures cache hits, cost transparency, and provenance before expensive steps. Nothing entirely new at the data layer — just disciplined use of the gateway + orchestration.
 
 ---
 
 ## What to Build (Phased)
 
-### Phase 1: Natural Language Brand Setup (Now)
+### Phase 1: Intelligence Foundation + Basic Setup (Actualized / In Progress)
 
-| Feature | What it does |
-|---------|-------------|
-| **`auto_setup` chat tool** | AI can call this when user says "I run X business". Creates brand, runs auto-research, sets topics/themes, generates initial content calendar — all from one message |
-| **Welcome flow** | New users land directly in chat with a prompt: *"Hi! Tell me about what you want to automate..."* |
-| **Context pre-fill** | Auto-extract business name, website, niche from user's first message |
-| **Progress streaming** | Chat shows real-time progress: "Researching your niche... (3s) -> Found 14 topics -> Writing brand profile... -> Ready!" |
+The backend golden plan delivered the core intelligence layer first:
 
-### Phase 2: Goal Decomposition (Week 2-3)
+| Feature | Status |
+|---------|--------|
+| Unified TS Intelligence Gateway (knowledge store + GitHub + X intel + real cost metadata) | Actualized (in-process) |
+| Thin x402 primitives (`/v1/pulse/intel/research`, `/v1/pulse/goal/decompose`) | Prototyped + tested with real verify path |
+| `decomposeGoal` + `GoalPlan` (basic dynamic planner/worker contract) | Working |
+| Brand research + GitHub linkage + semantic search | Working |
+| Rust backend skeleton (agents + x-intel) | In progress |
 
-| Feature | What it does |
-|---------|-------------|
-| **Goal planner** | Accepts natural language goals like "launch my product", "grow by 20%", "post daily about X topic" |
-| **Plan visualization** | Chat shows the plan: a timeline of what will happen when |
-| **Plan approval** | User can see the plan before it starts, tweak things |
-| **Job queue integration** | Plans become scheduled jobs with dependencies |
+UI agent create/switcher and basic tabs are functional on the TS path; wiring to Rust backend is underway.
 
-### Phase 3: Goal API & Autonomous Execution (Week 4-5)
+### Phase 2: Goal Decomposition & Planning (Partial)
+
+| Feature | What it does | Status |
+|---------|--------------|--------|
+| **decompose_goal primitive** | Turns natural language into structured steps (foundation for planner) | Working (used in x402 + intel) |
+| **Goal planner** | Accepts natural language goals and produces rich plans with dependencies + budget | Needs building (decompose is first slice) |
+| **Plan visualization / approval** | Show timeline in chat, let user tweak | Future |
+| **Job queue integration** | Plans become executable tasks | Future |
+
+### Phase 3: Goal API & Execution (Future)
 
 | Feature | What it does |
 |---------|-------------|
 | **Goal API endpoint** | `POST /v1/goal` — send natural language goal + auth, get back a plan ID. `GET /v1/goal/:planId` — check progress |
-| **Goal webhook** | Pulse pings your webhook as tasks complete. Optional — you can poll instead |
-| **Autonomous budget** | Agent manages its own credit spend, picks models based on task importance. Deducts from free tier, Stripe, or x402 balance |
-| **Self-healing** | If a task fails, the planner generates an alternative approach |
-| **x402 as payment** | x402 validates off-chain USDC payments for credits. Users can pay with Stripe, x402, or free tier — agent doesn't care which |
+| **Goal webhook + self-healing** | Progress notifications; planner adapts on failure |
+| **Autonomous budget** | Agent manages spend across free tier / Stripe / x402 |
+| **x402 as payment** | Already prototyped in the thin surface |
 
 ### Phase 4: Multi-Agent & Marketplace (Future)
 
@@ -171,18 +178,21 @@ The worker uses the **same tools that already exist**: content generation, outre
 
 ## The Technical Piece: How Planning Works
 
-The planner is just a **prompt + structured output**:
+A basic `decomposeGoal` + `GoalPlan` contract has been implemented (see `src/core/knowledge-store.ts` and `intel-primitives.ts`). It produces dynamic steps from the goal text as the first real slice of the planner/worker model. The full LLM-driven rich planner below remains the target for Phase 2+.
+
+The planner will ultimately be a **prompt + structured output**:
 
 ```typescript
-// The planner prompt (sent to GPT-4o)
+// The planner prompt (sent to strong model)
 const PLANNER_PROMPT = `
 You are Pulse's planning agent. Given a user's goal, decompose it into 
-executable tasks. Each task maps to an existing Pulse capability.
+executable tasks. Each task maps to an existing Pulse capability (or the
+Intelligence Gateway for research/context).
 
 Available capabilities:
 - GENERATE_CONTENT: Create X posts, threads, images
 - OUTREACH: Search for conversations and reply
-- RESEARCH: Investigate a topic, competitor, or trend
+- RESEARCH: Investigate a topic, competitor, or trend (prefer gateway)
 - MONITOR: Track mentions, engagement, sentiment
 - SCHEDULE: Time-based trigger for any task
 
@@ -204,7 +214,7 @@ Output a JSON plan:
 }
 `
 
-// The plan executor
+// The plan executor (future)
 async function executeGoal(plan: GoalPlan, tenantId: string) {
   for (const task of topologicalSort(plan.tasks)) {
     await waitForDependencies(task, plan.tasks);
@@ -217,7 +227,7 @@ async function executeGoal(plan: GoalPlan, tenantId: string) {
 }
 ```
 
-The key insight: **the planner doesn't write code. It outputs JSON that maps to existing tools.** The strong model handles the "what should I do" part. Pulse's existing engine handles the "how to do it" part.
+The key insight: **the planner doesn't write code. It outputs structured plans that map to tools and (critically) the Intelligence Gateway.** The strong model handles the "what should I do" part. The gateway + worker engine handles cheap data acquisition and reliable execution.
 
 ---
 
@@ -233,17 +243,21 @@ Pulse should feel like a **co-founder, not a dashboard**.
 
 ---
 
-## Where We Are Now
+## Where We Are Now (mid-2026)
+
+**Note:** The backend foundations described in the (now archived) Pulse as a Service — Backend Golden Plan have been actualized: unified in-process TS Intelligence Gateway (knowledge-store + GitHub + X intel with real IntelMeta cost/savings/trace), thin x402 primitives (`deep_research` + `decompose_goal`), chat/agent parity, and a Rust backend skeleton for agents + x-intel. Full autonomous goal execution remains future work.
 
 | Capability | Status |
 |-----------|--------|
-| Brand auto-setup (research + profile + calendar) | Ready to wire up |
+| Unified Intelligence Gateway (knowledge + GitHub linkage + X intel + cost metadata) | Working (in-process TS) |
+| Thin x402 intelligence surface (deep_research + decompose_goal primitives returning blocks + IntelMeta) | Prototyped + tested (real verify path) |
+| Goal decomposition (decomposeGoal + GoalPlan types, basic planner/worker contract) | Working (dynamic from goal tokens) |
+| Rust backend (agents + x-intel gateway) | In progress (skeleton + core endpoints; agents/intel surface) |
 | Content generation | Working |
 | Outreach/engagement | Working (needs X keys) |
 | Scheduler | Working |
-| Chat-based configuration | Working |
-| x402 payment validation | Code exists (gated) |
-| Natural language goal planning | Needs building |
-| Goal execution with dependencies | Needs building |
-| Autonomous budget management | Needs building |
-| Multi-agent coordination | Future |
+| Brand auto-setup / research | Partial (knowledge store + GitHub push + semantic search wired) |
+| Full natural language goal planning + execution (POST /v1/goal, planId, dependencies, self-healing) | Needs building (decompose is the foundation) |
+| Autonomous budget management + multi-agent | Future |
+| UI (agent tabs, create agents, conversational flows) | Functional on TS-hosted (simpler agent code); wiring to Rust in progress |
+| x402 production payments | Prototyped (PULSE_X402_TEST_ACCEPT + legacy verifier; full facilitator future) |

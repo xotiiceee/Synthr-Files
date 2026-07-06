@@ -1,7 +1,6 @@
 packages:
-  - "apps/*"
+  - "apps/pulse/frontend"
   - "!apps/synthr"
-  - "apps/pulse/hosted/ui"
   - "packages/*"
 allowBuilds:
   better-sqlite3: true
