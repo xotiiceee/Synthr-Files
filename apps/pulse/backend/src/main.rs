@@ -46,7 +46,7 @@ mod x_intel;
 use x_intel::{build_default_gateway, KnowledgeItem, PulseXDataGateway, XQuery};
 
 mod x_auth;
-use x_auth::{XAuthStore, XUserToken, generate_pkce, x_auth_url, exchange_code_for_token};
+use x_auth::{XAuthStore, XUserToken, oauth1_request_token, oauth1_auth_url, oauth1_access_token, x_media_upload_oauth1, generate_pkce, exchange_code_for_token};
 
 mod persona;
 use persona::{Persona, PersonaStore, PersonaExemplar, PersonaEvolution, analyze_profile_for_persona, merge_persona, PersonaAnalysis};
@@ -2022,15 +2022,21 @@ fn format_generation_prompt(
         .unwrap_or("");
     let topics = string_list_from_json(brand_context.get("topics")).join(", ");
     let competitors = string_list_from_json(brand_context.get("competitors")).join(", ");
+    let persona_notes = brand_context.get("persona").and_then(|v| v.as_str()).unwrap_or("");
+    let creative_style = creative_style_for_gen();
     let format_instruction = if content_type == "thread" {
-        "Write a short X thread. Return only the thread text, one post per line, no labels.".to_string()
+        format!("Write a short X thread. Start with: {creative_style}. Return only the thread text, one post per line, no labels.")
     } else {
-        format!("Write one polished X post. Stay strictly under {char_limit} characters. Return only the post copy, no explanation.")
+        format!("Write one polished X post. Start with: {creative_style}. Stay strictly under {char_limit} characters. Return only the post copy, no explanation.")
     };
 
-    format!(
+    let mut prompt = format!(
         "{format_instruction}\n\nUser request: {topic}\nPlatform: {platform}\nBrand: {brand_name}\nNiche: {niche}\nWebsite: {website}\nDescription: {description}\nTone: {tone}\nContent themes: {topics}\nCompetitors: {competitors}\n\nIf the user says \"my brand,\" use the Brand above. Make the copy specific to this Brand. The post MUST be under {char_limit} characters."
-    )
+    );
+    if !persona_notes.is_empty() {
+        prompt.push_str(&format!("\n\nBrand persona and voice notes: {persona_notes}"));
+    }
+    prompt
 }
 
 fn clean_generated_content(text: &str) -> String {
@@ -3551,8 +3557,8 @@ async fn save_state_to_db(pool: &sqlx::PgPool, state: &AppState) {
         blob["x_tokens"] = serde_json::json!(x_tokens.iter().map(|(k, v)| {
             (k.clone(), serde_json::json!({
                 "x_user_id": v.x_user_id, "x_handle": v.x_handle,
-                "access_token": v.access_token, "refresh_token": v.refresh_token,
-                "expires_at": v.expires_at,
+                "access_token": v.access_token, "access_token_secret": v.access_token_secret,
+                "refresh_token": v.refresh_token, "expires_at": v.expires_at,
             }))
         }).collect::<HashMap<_, _>>());
     }
@@ -3587,6 +3593,7 @@ async fn load_state_from_db(pool: &sqlx::PgPool, state: &AppState) {
                     x_user_id: td.get("x_user_id").and_then(|v| v.as_str()).unwrap_or("").to_string(),
                     x_handle: td.get("x_handle").and_then(|v| v.as_str()).unwrap_or("").to_string(),
                     access_token: td.get("access_token").and_then(|v| v.as_str()).unwrap_or("").to_string(),
+                    access_token_secret: td.get("access_token_secret").and_then(|v| v.as_str()).map(|s| s.to_string()),
                     refresh_token: td.get("refresh_token").and_then(|v| v.as_str()).map(|s| s.to_string()),
                     expires_at: td.get("expires_at").and_then(|v| v.as_str()).map(|s| s.to_string()),
                 }).await;
@@ -3731,23 +3738,31 @@ async fn x_auth_connect(State(state): State<AppState>, headers: HeaderMap) -> im
     let auth = match require_auth(&headers).await { Ok(a) => a, Err(err) => return err.into_response() };
     let client_id = std::env::var("X_CLIENT_ID").unwrap_or_default();
     if client_id.is_empty() { return (StatusCode::SERVICE_UNAVAILABLE, Json(serde_json::json!({"error": "X not configured"}))).into_response(); }
+    let client_secret = std::env::var("X_CLIENT_SECRET").unwrap_or_default();
     let state_val = uuid::Uuid::new_v4().to_string();
-    let (verifier, challenge) = generate_pkce().await;
-    state.x_auth.store_state(&state_val, &auth.user_id, &verifier, "/settings").await;
     let redirect_uri = std::env::var("X_REDIRECT_URI").unwrap_or_else(|_| "https://pulse.synthr.online/auth/x/callback".to_string());
-    Redirect::to(&x_auth_url(&client_id, &redirect_uri, &state_val, &challenge)).into_response()
+    match oauth1_request_token(&client_id, &client_secret, &redirect_uri).await {
+        Ok((request_token, request_secret)) => {
+            state.x_auth.store_state(&request_token, &auth.user_id, &redirect_uri).await;
+            // Also stash the request secret so we can use it in the callback
+            // We use the state map with request_token as key
+            state.x_auth.store_state(&format!("secret_{request_token}"), &request_secret, &redirect_uri).await;
+            Redirect::to(&oauth1_auth_url(&request_token)).into_response()
+        }
+        Err(e) => (StatusCode::BAD_GATEWAY, Json(serde_json::json!({"error": format!("X auth failed: {e}")}))).into_response(),
+    }
 }
 
 async fn x_auth_callback(State(state): State<AppState>, Query(params): Query<HashMap<String, String>>) -> impl IntoResponse {
-    let code = match params.get("code") { Some(c) => c.clone(), None => return (StatusCode::BAD_REQUEST, "Missing code").into_response() };
-    let state_val = match params.get("state") { Some(s) => s.clone(), None => return (StatusCode::BAD_REQUEST, "Missing state").into_response() };
-    let (user_id, verifier, _) = match state.x_auth.take_state(&state_val).await { Some(d) => d, None => return (StatusCode::BAD_REQUEST, "Invalid state").into_response() };
+    let oauth_token = match params.get("oauth_token") { Some(t) => t.clone(), None => return (StatusCode::BAD_REQUEST, "Missing oauth_token").into_response() };
+    let oauth_verifier = match params.get("oauth_verifier") { Some(v) => v.clone(), None => return (StatusCode::BAD_REQUEST, "Missing oauth_verifier").into_response() };
+    let (user_id, _) = match state.x_auth.take_state(&oauth_token).await { Some(d) => d, None => return (StatusCode::BAD_REQUEST, "Invalid oauth_token").into_response() };
+    let (request_secret, _) = match state.x_auth.take_state(&format!("secret_{oauth_token}")).await { Some(d) => d, None => return (StatusCode::BAD_REQUEST, "Missing request secret").into_response() };
     let cid = std::env::var("X_CLIENT_ID").unwrap_or_default();
     let secret = std::env::var("X_CLIENT_SECRET").unwrap_or_default();
-    let redirect_uri = std::env::var("X_REDIRECT_URI").unwrap_or_else(|_| "https://pulse.synthr.online/auth/x/callback".to_string());
-    match exchange_code_for_token(&cid, &secret, &redirect_uri, &code, &verifier).await {
-        Ok((access_token, refresh_token, x_user_id, handle)) => {
-            state.x_auth.store_token(XUserToken { user_id: user_id.clone(), x_user_id, x_handle: handle.clone(), access_token, refresh_token, expires_at: None }).await;
+    match oauth1_access_token(&cid, &secret, &oauth_token, &request_secret, &oauth_verifier).await {
+        Ok((access_token, access_secret, x_user_id, handle)) => {
+            state.x_auth.store_token(XUserToken { user_id: user_id.clone(), x_user_id, x_handle: handle.clone(), access_token, access_token_secret: Some(access_secret), refresh_token: None, expires_at: None }).await;
             save_state_to_db(&state.pool, &state).await;
             Redirect::to(&format!("/settings?x_connected={}", handle.trim_start_matches('@'))).into_response()
         }
@@ -3772,20 +3787,81 @@ async fn x_disconnect(State(state): State<AppState>, headers: HeaderMap) -> impl
 
 async fn x_post_tweet(State(state): State<AppState>, headers: HeaderMap, Json(payload): Json<XPostPayload>) -> impl IntoResponse {
     let auth = match require_auth(&headers).await { Ok(a) => a, Err(err) => return err.into_response() };
-    let token = match state.x_auth.get_token(&auth.user_id).await { Some(t) => t, None => return (StatusCode::PRECONDITION_FAILED, Json(serde_json::json!({"error": "X not connected"}))).into_response() };
-    let mut media_ids: Vec<String> = Vec::new();
-    if let Some(iu) = &payload.image_url { if !iu.is_empty() { match upload_media_to_x(&token.access_token, iu).await { Ok(mid) => media_ids.push(mid), Err(e) => { warn!(target:"pulse_backend", error=%e, "media upload fail"); } } } }
-    let mut tb = serde_json::json!({"text": payload.text});
-    if !media_ids.is_empty() { tb["media"] = serde_json::json!({"media_ids": media_ids}); }
+    let token = match state.x_auth.get_token(&auth.user_id).await { Some(t) => t, None => return (StatusCode::PRECONDITION_FAILED, Json(serde_json::json!({"error": "X not connected. Go to Settings to reconnect."}))).into_response() };
+    let has_image = payload.image_url.as_ref().map(|u| !u.is_empty()).unwrap_or(false);
     let client = Client::new();
-    match client.post("https://api.twitter.com/2/tweets").header("Authorization", format!("Bearer {}", token.access_token)).json(&tb).send().await {
-        Ok(resp) => {
-            if !resp.status().is_success() { let b: serde_json::Value = resp.json().await.unwrap_or_default(); return (StatusCode::BAD_GATEWAY, Json(serde_json::json!({"error": format!("X error: {}", b["detail"].as_str().unwrap_or("unknown"))}))).into_response(); }
-            let r: serde_json::Value = resp.json().await.unwrap_or_default();
-            let tid = r["data"]["id"].as_str().unwrap_or("");
-            Json(serde_json::json!({"ok": true, "tweetId": tid, "url": format!("https://x.com/i/status/{tid}")})).into_response()
+
+    if has_image {
+        let image_url = payload.image_url.unwrap();
+        let (image_bytes, mime_type) = if image_url.starts_with("data:") {
+            let parts: Vec<&str> = image_url.splitn(2, ',').collect();
+            let mime = parts.first().unwrap_or(&"").trim_start_matches("data:").split(';').next().unwrap_or("image/png");
+            let b64 = parts.get(1).unwrap_or(&"");
+            use base64::{engine::general_purpose::STANDARD, Engine};
+            match STANDARD.decode(b64) { Ok(b) => (b, mime.to_string()), Err(e) => return (StatusCode::BAD_REQUEST, Json(serde_json::json!({"error": format!("Invalid image data: {e}")}))).into_response() }
+        } else if image_url.starts_with("http") {
+            match client.get(&image_url).send().await {
+                Ok(resp) => match resp.bytes().await { Ok(b) => (b.to_vec(), "image/png".to_string()), Err(e) => return (StatusCode::BAD_GATEWAY, Json(serde_json::json!({"error": format!("Failed to fetch image: {e}")}))).into_response() },
+                Err(e) => return (StatusCode::BAD_GATEWAY, Json(serde_json::json!({"error": format!("Image fetch failed: {e}")}))).into_response(),
+            }
+        } else { return (StatusCode::BAD_REQUEST, Json(serde_json::json!({"error": "Unsupported image URL"}))).into_response(); };
+
+        let cid = std::env::var("X_CLIENT_ID").unwrap_or_default();
+        let csec = std::env::var("X_CLIENT_SECRET").unwrap_or_default();
+        let media_id = if let Some(ref ats) = token.access_token_secret {
+            match x_media_upload_oauth1(&cid, &csec, &token.access_token, ats, image_bytes, &mime_type).await {
+                Ok(mid) => Some(mid),
+                Err(e) => {
+                    warn!(target:"pulse_backend", error=%e, "media upload fail");
+                    None
+                }
+            }
+        } else {
+            // No OAuth 1.0a token secret — try Bearer, but it will likely fail for v1.1
+            match upload_media_to_x(&token.access_token, &image_url).await {
+                Ok(mid) => Some(mid),
+                Err(e) => {
+                    warn!(target:"pulse_backend", error=%e, "media upload fail (no OAuth1 secret)");
+                    None
+                }
+            }
+        };
+
+        let mut tb = serde_json::json!({"text": payload.text});
+        if let Some(ref mid) = media_id { tb["media"] = serde_json::json!({"media_ids": [mid]}); }
+        match client.post("https://api.twitter.com/2/tweets")
+            .header("Authorization", format!("Bearer {}", token.access_token))
+            .json(&tb).send().await {
+            Ok(resp) => {
+                if !resp.status().is_success() {
+                    let b: serde_json::Value = resp.json().await.unwrap_or_default();
+                    return (StatusCode::BAD_GATEWAY, Json(serde_json::json!({"error": format!("X error: {}", b["detail"].as_str().unwrap_or("unknown"))}))).into_response();
+                }
+                let r: serde_json::Value = resp.json().await.unwrap_or_default();
+                let tid = r["data"]["id"].as_str().unwrap_or("");
+                let mut result = serde_json::json!({"ok": true, "tweetId": tid, "url": format!("https://x.com/i/status/{tid}")});
+                if media_id.is_none() {
+                    result["mediaError"] = serde_json::json!("Image could not be attached. Reconnect X in Settings to update your permissions, then try again.");
+                }
+                Json(result).into_response()
+            }
+            Err(e) => (StatusCode::BAD_GATEWAY, Json(serde_json::json!({"error": e.to_string()}))).into_response(),
         }
-        Err(e) => (StatusCode::BAD_GATEWAY, Json(serde_json::json!({"error": e.to_string()}))).into_response(),
+    } else {
+        match client.post("https://api.twitter.com/2/tweets")
+            .header("Authorization", format!("Bearer {}", token.access_token))
+            .json(&serde_json::json!({"text": payload.text})).send().await {
+            Ok(resp) => {
+                if !resp.status().is_success() {
+                    let b: serde_json::Value = resp.json().await.unwrap_or_default();
+                    return (StatusCode::BAD_GATEWAY, Json(serde_json::json!({"error": format!("X error: {}", b["detail"].as_str().unwrap_or("unknown"))}))).into_response();
+                }
+                let r: serde_json::Value = resp.json().await.unwrap_or_default();
+                let tid = r["data"]["id"].as_str().unwrap_or("");
+                Json(serde_json::json!({"ok": true, "tweetId": tid, "url": format!("https://x.com/i/status/{tid}")})).into_response()
+            }
+            Err(e) => (StatusCode::BAD_GATEWAY, Json(serde_json::json!({"error": e.to_string()}))).into_response(),
+        }
     }
 }
 
