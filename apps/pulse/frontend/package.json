@@ -11,8 +11,8 @@
   },
   "//": "Current Vite+React19 shell (Phase 0/1 enhanced). Plan recommends full Next.js 16+ (RSC/streaming) migration for production agent UX. See root PULSE_ACTUALIZATION_PLAN.md. shadcn/ui + TanStack recommended for 'go beyond'.",
   "dependencies": {
-    "@clerk/react": "^6.14.1",
-    "lucide-react": "^1.31.0",
+    "@clerk/react": "^6.14.4",
+    "lucide-react": "^1.33.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "react-router-dom": "^7.18.2"
@@ -23,7 +23,7 @@
     "@types/node": "^26.2.0",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.4",
-    "@vitejs/plugin-react": "^6.0.5",
+    "@vitejs/plugin-react": "^6.1.0",
     "eslint": "^10.8.1",
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.5.4",
@@ -31,6 +31,6 @@
     "tailwindcss": "^4.3.3",
     "typescript": "~7.0.2",
     "typescript-eslint": "^8.67.0",
-    "vite": "^8.2.1"
+    "vite": "^8.2.2"
   }
 }
