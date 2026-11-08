@@ -13,12 +13,12 @@
     "dev:node": "npx tsx watch src/index.ts"
   },
   "dependencies": {
-    "hono": "^4.13.14",
-    "@hono/node-server": "^2.1.5",
+    "hono": "^4.13.16",
+    "@hono/node-server": "^2.1.6",
     "@hono/zod-validator": "^0.9.1",
-    "@x402/hono": "^2.29.0",
-    "@x402/core": "^2.29.0",
-    "@x402/evm": "^2.29.0",
+    "@x402/hono": "^2.30.0",
+    "@x402/core": "^2.30.0",
+    "@x402/evm": "^2.30.0",
     "zod": "^4.6.7",
     "zod-openapi": "^6.0.2",
     "pino": "^10.4.0",
@@ -30,7 +30,7 @@
     "tsx": "^4.23.15",
     "ts-node": "^10.9.2",
     "typescript": "^7.0.2",
-    "vitest": "^5.0.5"
+    "vitest": "^5.1.0"
   },
   "engines": {
     "bun": ">=1.2.0"
