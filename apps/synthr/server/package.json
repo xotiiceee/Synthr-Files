@@ -13,8 +13,8 @@
     "dev:node": "npx tsx watch src/index.ts"
   },
   "dependencies": {
-    "hono": "^4.13.16",
-    "@hono/node-server": "^2.1.6",
+    "hono": "^4.13.18",
+    "@hono/node-server": "^2.1.8",
     "@hono/zod-validator": "^0.9.1",
     "@x402/hono": "^2.30.0",
     "@x402/core": "^2.30.0",
